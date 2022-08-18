@@ -1,0 +1,12 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: local #실행 조건 없을 시 기본값
+    include: private
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher  #swagger 3.0 오류 해결
+
