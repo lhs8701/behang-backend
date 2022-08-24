@@ -12,12 +12,18 @@ public class KakaoProfile {
     @Getter
     @ToString
     public static class KakaoAccount {
-        private String email;
+        private Profile profile;
+        @Getter
+        public static class Profile{
+            private String nickname;
+            private String profile_image_url;
+        }
     }
 
     @Getter
     @ToString
     public static class Properties {
         private String nickname;
+        private String profile_image;
     }
 }

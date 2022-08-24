@@ -3,6 +3,7 @@ package bh.bhback.global.error.advice;
 import bh.bhback.domain.auth.exception.CCommunicationException;
 import bh.bhback.domain.auth.exception.CSocialAgreementException;
 import bh.bhback.domain.common.ResponseService;
+import bh.bhback.domain.image.exception.WrongFileTypeException;
 import bh.bhback.domain.model.response.CommonResult;
 import bh.bhback.global.error.ErrorCode;
 
@@ -38,16 +39,16 @@ public class ExceptionAdvice {
 
     //해당 user를 찾지 못했을 떄
     @ExceptionHandler(CUserNotFoundException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected CommonResult userNotFoundException(HttpServletRequest request, CUserNotFoundException e) {
         return responseService.getFailResult
                 (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
     }
 
     //로그인 실패시
-    @ExceptionHandler(CEmailLoginFailedException.class)
+    @ExceptionHandler(CLoginFailedException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    protected CommonResult usernameLoginFailedException(HttpServletRequest request, CEmailLoginFailedException e) {
+    protected CommonResult usernameLoginFailedException(HttpServletRequest request, CLoginFailedException e) {
         return responseService.getFailResult
                 (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
     }
@@ -56,7 +57,7 @@ public class ExceptionAdvice {
      * 전달한 Jwt 이 정상적이지 않은 경우 발생 시키는 예외
      */
     @ExceptionHandler(CAuthenticationEntryPointException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     protected CommonResult authenticationEntrypointException(HttpServletRequest request, CAuthenticationEntryPointException e) {
         return responseService.getFailResult
                 (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
@@ -66,7 +67,7 @@ public class ExceptionAdvice {
      * 권한이 없는 리소스를 요청한 경우 발생 시키는 예외
      */
     @ExceptionHandler(AccessDeniedException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     protected CommonResult accessDeniedException(HttpServletRequest request, AccessDeniedException e) {
         return responseService.getFailResult
                 (ErrorCode.ACCESS_DENIED.getCode(), ErrorCode.ACCESS_DENIED.getDescription());
@@ -79,7 +80,7 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     protected CommonResult refreshTokenException(HttpServletRequest request, CRefreshTokenException e) {
         return responseService.getFailResult
-                (ErrorCode.ACCESS_DENIED.getCode(), ErrorCode.ACCESS_DENIED.getDescription());
+                (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
     }
 
     /***
@@ -89,7 +90,7 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected CommonResult communicationException(HttpServletRequest request, CCommunicationException e) {
         return responseService.getFailResult
-                (ErrorCode.ACCESS_DENIED.getCode(), ErrorCode.ACCESS_DENIED.getDescription());
+                (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
     }
 
     /***
@@ -108,6 +109,36 @@ public class ExceptionAdvice {
     @ExceptionHandler(CSocialAgreementException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected CommonResult socialAgreementException(HttpServletRequest request, CSocialAgreementException e) {
+        return responseService.getFailResult
+                (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
+    }
+
+    /**
+     * 잘못된 접근
+     */
+    @ExceptionHandler(WrongApproachException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected CommonResult wrongApproachException(HttpServletRequest request, WrongApproachException e) {
+        return responseService.getFailResult
+                (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
+    }
+
+    /**
+     * 게시물을 찾을 수 없는 경우
+     */
+    @ExceptionHandler(PostNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected CommonResult postNotFoundException(HttpServletRequest request, PostNotFoundException e) {
+        return responseService.getFailResult
+                (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
+    }
+
+    /**
+     * 파일이 없거나, 잘못된 파일 형식일 경우
+     */
+    @ExceptionHandler(WrongFileTypeException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected CommonResult wrongFileTypeException(HttpServletRequest request, WrongFileTypeException e) {
         return responseService.getFailResult
                 (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
     }

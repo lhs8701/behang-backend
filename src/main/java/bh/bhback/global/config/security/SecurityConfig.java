@@ -46,6 +46,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             //CustomAuthenticationEntryPoint 클래스를 호출 ->  /exception/entryPoint로 리다이렉트 -> ExceptionController에서 해당 URL 처리, CAuthenticationEntryException()가 호출
             .and()
             .authorizeRequests()
+            .mvcMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .antMatchers(HttpMethod.POST, "/v1/signup", "/v1/login",
                     "/v1/reissue", "/v1/social/**").permitAll()
             .antMatchers(HttpMethod.GET, "/oauth/kakao/**").permitAll()
@@ -64,7 +65,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers("/api/usage","/v3/api-docs", "/swagger-resources/**",
+        web.ignoring().antMatchers("/api/usage","/v3/api-docs","/v2/api-docs", "/swagger-resources/**",
                 "/swagger-ui/**", "/webjars/**", "/swagger/**");
         //swagger 관련 url에 대해서는 예외처리
     }
