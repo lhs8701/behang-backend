@@ -31,9 +31,6 @@ public class KOAuthController {
     private final KakaoService kakaoService;
     private final ResponseService responseService;
 
-    @Value("${spring.url.base}")
-    private String baseUrl;
-
     @Value("${social.kakao.client-id}")
     private String kakaoClientId;
 
@@ -47,7 +44,7 @@ public class KOAuthController {
                 .append(env.getProperty("social.kakao.url.login"))
                 .append("?response_type=code")
                 .append("&client_id=").append(kakaoClientId)
-                .append("&redirect_uri=").append(baseUrl).append(kakaoRedirectUri);
+                .append("&redirect_uri=").append(kakaoRedirectUri);
         mav.addObject("loginUrl", loginUri);
         mav.setViewName("social/login");
         return mav;
@@ -59,7 +56,6 @@ public class KOAuthController {
             ModelAndView mav,
             @ApiParam(value = "Authorization Code", required = true)
             @RequestParam String code) {
-
         mav.addObject("authInfo", kakaoService.getKakaoTokenInfo(code));
         mav.setViewName("social/redirectKakao");
         return mav;

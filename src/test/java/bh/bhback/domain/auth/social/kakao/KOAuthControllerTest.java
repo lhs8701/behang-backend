@@ -1,4 +1,4 @@
-package bh.bhback.domain.auth.controller;
+package bh.bhback.domain.auth.social.kakao;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
@@ -35,6 +35,7 @@ public class KOAuthControllerTest {
         kakaoRedirectUri = env.getProperty("social.kakao.redirect");
     }
 
+    //카카오로그인 요청 후 인가 코드 획득
     @Test
     public void REST_API_KEY_카카오로그인_요청() {
         String loginUri = env.getProperty("social.kakao.url.login");

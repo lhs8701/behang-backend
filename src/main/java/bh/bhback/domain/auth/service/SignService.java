@@ -3,7 +3,7 @@ package bh.bhback.domain.auth.service;
 
 import bh.bhback.domain.auth.dto.UserSignupRequestDto;
 import bh.bhback.domain.user.entity.User;
-import bh.bhback.domain.user.repository.UserJpaRepo;
+import bh.bhback.domain.user.repository.UserJpaRepository;
 import bh.bhback.global.config.security.*;
 import bh.bhback.global.error.advice.exception.CRefreshTokenException;
 import bh.bhback.global.error.advice.exception.CUserExistException;
@@ -20,18 +20,18 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class SignService {
 
-    private final UserJpaRepo userJpaRepo;
+    private final UserJpaRepository userJpaRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final RefreshTokenJpaRepo tokenJpaRepo;
 
     @Transactional
     public Long socialSignup(UserSignupRequestDto userSignupRequestDto) {
-        if (userJpaRepo
-                .findByEmailAndProvider(userSignupRequestDto.getEmail(), userSignupRequestDto.getProvider())
+        if (userJpaRepository
+                .findBySocialIdAndProvider(userSignupRequestDto.toEntity().getSocialId(), userSignupRequestDto.getProvider())
                 .isPresent()
         ) throw new CUserExistException();
-        return userJpaRepo.save(userSignupRequestDto.toEntity()).getUserId();
+        return userJpaRepository.save(userSignupRequestDto.toEntity()).getUserId();
     }
 
     @Transactional
@@ -46,7 +46,7 @@ public class SignService {
         Authentication authentication = jwtProvider.getAuthentication(accessToken);
 
         // user pk로 유저 검색 / repo 에 저장된 Refresh Token 이 없음
-        User user = userJpaRepo.findById(Long.parseLong(authentication.getName()))
+        User user = userJpaRepository.findById(Long.parseLong(authentication.getName()))
                 .orElseThrow(CUserNotFoundException::new);
         RefreshToken refreshToken = tokenJpaRepo.findByKey(user.getUserId())
                 .orElseThrow(CRefreshTokenException::new);

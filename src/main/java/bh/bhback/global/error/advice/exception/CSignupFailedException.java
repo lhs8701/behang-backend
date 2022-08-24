@@ -8,11 +8,11 @@ import bh.bhback.global.error.ErrorCode;
 @Slf4j
 @Getter
 @AllArgsConstructor
-public class CEmailSignupFailedException extends RuntimeException {
+public class CSignupFailedException extends RuntimeException {
     private final ErrorCode errorCode;
 
-    public CEmailSignupFailedException() {
+    public CSignupFailedException() {
         super();
-        errorCode = ErrorCode.EMAIL_SIGNUP_FAILED;
+        errorCode = ErrorCode.SIGNUP_FAILED;
     }
 }
