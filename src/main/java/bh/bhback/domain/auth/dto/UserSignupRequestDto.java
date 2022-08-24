@@ -10,16 +10,17 @@ import java.util.Collections;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserSignupRequestDto {
-    private String email;
+    private Long socialId;
     private String password;
-    private String name;
     private String nickName;
+    private String profileImage;
     private String provider;
 
     public User toEntity() {
         return User.builder()
-                .email(email)
+                .socialId(socialId)
                 .nickName(nickName)
+                .profileImage(profileImage)
                 .provider(provider)
                 .roles(Collections.singletonList("ROLE_USER"))
                 .build();

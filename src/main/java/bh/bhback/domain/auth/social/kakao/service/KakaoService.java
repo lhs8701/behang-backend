@@ -45,8 +45,9 @@ public class KakaoService {
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(null, headers);
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(requestUrl, request, String.class);
-            if (response.getStatusCode() == HttpStatus.OK)
+            if (response.getStatusCode() == HttpStatus.OK) {
                 return gson.fromJson(response.getBody(), KakaoProfile.class);
+            }
         } catch (Exception e) {
             log.error(e.toString());
             throw new CCommunicationException();
@@ -62,7 +63,7 @@ public class KakaoService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", kakaoClientId);
-        params.add("redirect_uri", baseUrl + kakaoRedirectUri);
+        params.add("redirect_uri", kakaoRedirectUri);
         params.add("code", code);
 
         String requestUri = env.getProperty("social.kakao.url.token");

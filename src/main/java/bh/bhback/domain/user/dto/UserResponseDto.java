@@ -11,8 +11,8 @@ import java.util.List;
 @Getter
 public class UserResponseDto {
     private final Long userId;
-    private final String email;
     private final String nickName;
+    private final String profileImage;
     private List<String> roles;
     private Collection<? extends GrantedAuthority> authorities;
     private final LocalDateTime modifiedDate;
@@ -20,8 +20,8 @@ public class UserResponseDto {
 
     public UserResponseDto(User user) {
         this.userId = user.getUserId();
-        this.email = user.getEmail();
         this.nickName = user.getNickName();
+        this.profileImage = user.getProfileImage();
         this.roles = user.getRoles();
         this.authorities = user.getAuthorities();
         this.modifiedDate = user.getModifiedDate();

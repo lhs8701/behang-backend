@@ -10,3 +10,7 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher  #swagger 3.0 오류 해결
 
+  #삭제예정
+  freemarker:
+    template-loader-path: classpath:/templates
+    suffix: .ftl

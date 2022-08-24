@@ -4,7 +4,6 @@ package bh.bhback.domain.auth.social.kakao.controller;
 import bh.bhback.domain.auth.dto.UserSignupRequestDto;
 import bh.bhback.domain.auth.dto.UserSocialLoginRequestDto;
 import bh.bhback.domain.auth.dto.UserSocialSignupRequestDto;
-import bh.bhback.domain.auth.exception.CSocialAgreementException;
 import bh.bhback.domain.auth.service.SignService;
 import bh.bhback.domain.auth.social.kakao.dto.KakaoProfile;
 import bh.bhback.domain.auth.social.kakao.service.KakaoService;
@@ -12,7 +11,7 @@ import bh.bhback.domain.common.ResponseService;
 import bh.bhback.domain.model.response.CommonResult;
 import bh.bhback.domain.model.response.SingleResult;
 import bh.bhback.domain.user.entity.User;
-import bh.bhback.domain.user.repository.UserJpaRepo;
+import bh.bhback.domain.user.repository.UserJpaRepository;
 import bh.bhback.global.config.security.JwtProvider;
 import bh.bhback.global.config.security.TokenDto;
 import bh.bhback.global.error.advice.exception.CUserNotFoundException;
@@ -31,7 +30,7 @@ import org.springframework.web.bind.annotation.*;
 public class SignController {
 
     private final JwtProvider jwtProvider;
-    private final UserJpaRepo userJpaRepo;
+    private final UserJpaRepository userJpaRepository;
     private final KakaoService kakaoService;
     private final ResponseService responseService;
     private final SignService signService;
@@ -47,7 +46,7 @@ public class SignController {
         KakaoProfile kakaoProfile = kakaoService.getKakaoProfile(socialLoginRequestDto.getAccessToken());
         if (kakaoProfile == null) throw new CUserNotFoundException();
 
-        User user = userJpaRepo.findByEmailAndProvider(kakaoProfile.getKakao_account().getEmail(), "kakao")
+        User user = userJpaRepository.findBySocialIdAndProvider(kakaoProfile.getId(), "kakao")
                 .orElseThrow(CUserNotFoundException::new);
         return responseService.getSingleResult(jwtProvider.createTokenDto(user.getUserId(), user.getRoles()));
     }
@@ -65,15 +64,16 @@ public class SignController {
         KakaoProfile kakaoProfile =
                 kakaoService.getKakaoProfile(socialSignupRequestDto.getAccessToken());
         if (kakaoProfile == null) throw new CUserNotFoundException();
-        if (kakaoProfile.getKakao_account().getEmail() == null) {
-            kakaoService.kakaoUnlink(socialSignupRequestDto.getAccessToken());
-            throw new CSocialAgreementException();
-        }
+        //선택동의 항목 존재시
+//        if (kakaoProfile.getKakao_account().getEmail() == null) {
+//            kakaoService.kakaoUnlink(socialSignupRequestDto.getAccessToken());
+//            throw new CSocialAgreementException();
+//        }
 
         Long userId = signService.socialSignup(UserSignupRequestDto.builder()
-                .email(kakaoProfile.getKakao_account().getEmail())
-                .name(kakaoProfile.getProperties().getNickname())
-                .nickName(kakaoProfile.getProperties().getNickname())
+                .socialId(kakaoProfile.getId())
+                .nickName(kakaoProfile.getKakao_account().getProfile().getNickname())
+                .profileImage(kakaoProfile.getKakao_account().getProfile().getProfile_image_url())
                 .provider("kakao")
                 .build());
 
