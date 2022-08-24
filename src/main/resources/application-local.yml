@@ -1,20 +1,19 @@
 
 spring:
   profiles: local
-  datasource:
-    url: jdbc:h2:tcp://localhost/~/test
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
   url:
     base: http://localhost:8080
-
   jpa:
-    hibernate:
-      ddl-auto: create # 애플리케이션 실행 시점에 테이블을 drop 하고, 다시 생성
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect
     properties:
       hibernate:
+        enable_lazy_load_no_trans: true
         format_sql: true
+        ddl-auto: update
+        hbm2ddl:
+          auto: update
+    show-sql: true
 
 logging.level:
   org.hibernate.SQL: debug # logger를 통해 하이버네이트 실행 SQL을 남긴다.
@@ -22,3 +21,17 @@ logging.level:
 
 upload:
   path: E:\Spring\bh-back\src\imageStorage
+
+
+#  h2 설정
+#  datasource:
+#    url: jdbc:h2:tcp://localhost/~/test
+#    username: sa
+#    password:
+#    driver-class-name: org.h2.Driver
+#  jpa:
+#    hibernate:
+#      ddl-auto: create # 애플리케이션 실행 시점에 테이블을 drop 하고, 다시 생성
+#    properties:
+#      hibernate:
+#        format_sql: true

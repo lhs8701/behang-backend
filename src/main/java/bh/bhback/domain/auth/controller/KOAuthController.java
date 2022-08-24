@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 
-@Api(tags = "4. OAuth 2.0 Kakao")
 @Slf4j
 @Controller
 @RequiredArgsConstructor
