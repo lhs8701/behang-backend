@@ -1,6 +1,6 @@
 package bh.bhback.domain.auth.social.kakao;
 
-import bh.bhback.domain.auth.dto.UserSocialLoginRequestDto;
+import bh.bhback.domain.auth.dto.SocialLoginRequestDto;
 import bh.bhback.domain.auth.dto.UserSocialSignupRequestDto;
 import bh.bhback.domain.user.entity.User;
 import bh.bhback.domain.user.repository.UserJpaRepository;
@@ -19,8 +19,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Collections;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -139,7 +137,7 @@ public class KaKaoKakaoControllerTest {
     public void 카카오_로그인_성공() throws Exception
     {
         //given
-        String object = objectMapper.writeValueAsString(UserSocialLoginRequestDto.builder()
+        String object = objectMapper.writeValueAsString(SocialLoginRequestDto.builder()
                 .accessToken(accessToken)
                 .build());
 
@@ -166,10 +164,10 @@ public class KaKaoKakaoControllerTest {
     public void 카카오_로그인_액세스토큰오류_실패() throws Exception
     {
         //given
-        String signUpObject = objectMapper.writeValueAsString(UserSocialLoginRequestDto.builder()
+        String signUpObject = objectMapper.writeValueAsString(SocialLoginRequestDto.builder()
                 .accessToken(accessToken)
                 .build());
-        String logInObject = objectMapper.writeValueAsString(UserSocialLoginRequestDto.builder()
+        String logInObject = objectMapper.writeValueAsString(SocialLoginRequestDto.builder()
                 .accessToken(accessToken+"_wrongToken")
                 .build());
 
@@ -196,7 +194,7 @@ public class KaKaoKakaoControllerTest {
     public void 카카오_로그인_비가입자_실패() throws Exception
     {
         //given
-        String logInObject = objectMapper.writeValueAsString(UserSocialLoginRequestDto.builder()
+        String logInObject = objectMapper.writeValueAsString(SocialLoginRequestDto.builder()
                 .accessToken(accessToken)
                 .build());
 

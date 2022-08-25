@@ -1,10 +1,10 @@
 package bh.bhback.domain.auth.controller;
 
 import bh.bhback.domain.auth.service.AuthService;
-import bh.bhback.domain.common.ResponseService;
-import bh.bhback.domain.model.response.SingleResult;
-import bh.bhback.global.config.security.TokenDto;
-import bh.bhback.global.config.security.TokenRequestDto;
+import bh.bhback.global.common.response.service.ResponseService;
+import bh.bhback.global.common.response.dto.SingleResult;
+import bh.bhback.global.common.jwt.dto.TokenDto;
+import bh.bhback.global.common.jwt.dto.TokenRequestDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

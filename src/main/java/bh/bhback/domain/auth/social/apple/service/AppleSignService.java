@@ -1,10 +1,8 @@
-package bh.bhback.domain.auth.social.kakao.service;
+package bh.bhback.domain.auth.social.apple.service;
 
 import bh.bhback.domain.auth.dto.UserSignupRequestDto;
-import bh.bhback.domain.auth.dto.SocialLoginRequestDto;
-import bh.bhback.domain.auth.dto.UserSocialSignupRequestDto;
 import bh.bhback.domain.auth.service.AuthService;
-import bh.bhback.domain.auth.social.kakao.dto.KakaoProfile;
+import bh.bhback.domain.auth.social.apple.dto.AppleLoginRequestDto;
 import bh.bhback.domain.user.entity.User;
 import bh.bhback.domain.user.repository.UserJpaRepository;
 import bh.bhback.global.security.JwtProvider;
@@ -17,23 +15,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
-@Service
 @Slf4j
-public class KakaoSignService {
+@Service
+public class AppleSignService {
 
-    private final JwtProvider jwtProvider;
     private final UserJpaRepository userJpaRepository;
     private final RefreshTokenJpaRepo refreshTokenJpaRepo;
-    private final KakaoApiService kakaoApiService;
+    private final JwtProvider jwtProvider;
     private final AuthService authService;
 
-
-    public TokenDto loginByKakao(SocialLoginRequestDto socialLoginRequestDto) {
-
-        KakaoProfile kakaoProfile = kakaoApiService.getKakaoProfile(socialLoginRequestDto.getAccessToken());
-        if (kakaoProfile == null) throw new CUserNotFoundException();
-
-        User user = userJpaRepository.findBySocialIdAndProvider(String.valueOf(kakaoProfile.getId()), "kakao")
+    public TokenDto loginByApple(AppleLoginRequestDto appleLoginRequestDto) {
+        User user = userJpaRepository.findBySocialIdAndProvider(appleLoginRequestDto.getSocialId(), "apple")
                 .orElseThrow(CUserNotFoundException::new);
         TokenDto tokenDto = jwtProvider.createTokenDto(user.getUserId(), user.getRoles());
         RefreshToken refreshToken = RefreshToken.builder()
@@ -43,25 +35,20 @@ public class KakaoSignService {
         try{
             refreshTokenJpaRepo.deleteByUserKey(refreshToken.getUserKey());
         }catch (IllegalArgumentException e){
-            log.info("해당 칼럼이 없음");
+            log.info("회원가입 후 첫 로그인 시도");
         }
         refreshTokenJpaRepo.flush();
         refreshTokenJpaRepo.save(refreshToken);
         return tokenDto;
     }
 
-    public Long signupByKakao(UserSocialSignupRequestDto socialSignupRequestDto) {
-
-        // 카카오에게서 사용자 정보 요청
-        KakaoProfile kakaoProfile =
-                kakaoApiService.getKakaoProfile(socialSignupRequestDto.getAccessToken());
-        if (kakaoProfile == null) throw new CUserNotFoundException();
+    public Long signupByApple(AppleLoginRequestDto appleLoginRequestDto) {
 
         Long userId = authService.socialSignup(UserSignupRequestDto.builder()
-                .socialId(String.valueOf(kakaoProfile.getId()))
-                .nickName(kakaoProfile.getKakao_account().getProfile().getNickname())
-                .profileImage(kakaoProfile.getKakao_account().getProfile().getProfile_image_url())
-                .provider("kakao")
+                .socialId(appleLoginRequestDto.getSocialId())
+                .nickName(appleLoginRequestDto.getNickName())
+                .profileImage("https://www.studioapple.com/common/img/default_profile.png")
+                .provider("apple")
                 .build());
 
         return userId;

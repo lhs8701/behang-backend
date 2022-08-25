@@ -3,7 +3,7 @@ package bh.bhback.domain.post.entity;
 
 import bh.bhback.domain.image.entity.Image;
 import bh.bhback.domain.user.entity.User;
-import bh.bhback.global.common.BaseTimeEntity;
+import bh.bhback.global.common.jpa.BaseTimeEntity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

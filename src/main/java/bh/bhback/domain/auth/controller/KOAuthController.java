@@ -2,10 +2,10 @@ package bh.bhback.domain.auth.controller;
 
 
 
-import bh.bhback.domain.auth.exception.CCommunicationException;
+import bh.bhback.global.error.advice.exception.CCommunicationException;
 import bh.bhback.domain.auth.social.kakao.service.KakaoApiService;
-import bh.bhback.domain.common.ResponseService;
-import bh.bhback.domain.model.response.CommonResult;
+import bh.bhback.global.common.response.service.ResponseService;
+import bh.bhback.global.common.response.dto.CommonResult;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,7 @@
 package bh.bhback.domain.user.entity;
 
 import bh.bhback.domain.post.entity.Post;
-import bh.bhback.global.common.BaseTimeEntity;
+import bh.bhback.global.common.jpa.BaseTimeEntity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -28,8 +28,8 @@ public class User extends BaseTimeEntity implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    @Column
-    private Long socialId;
+    @Column(length = 100)
+    private String socialId;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(length = 100)

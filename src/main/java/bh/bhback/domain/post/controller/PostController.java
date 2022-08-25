@@ -1,9 +1,9 @@
 package bh.bhback.domain.post.controller;
 
-import bh.bhback.domain.common.ResponseService;
-import bh.bhback.domain.model.response.CommonResult;
-import bh.bhback.domain.model.response.ListResult;
-import bh.bhback.domain.model.response.SingleResult;
+import bh.bhback.global.common.response.service.ResponseService;
+import bh.bhback.global.common.response.dto.CommonResult;
+import bh.bhback.global.common.response.dto.ListResult;
+import bh.bhback.global.common.response.dto.SingleResult;
 import bh.bhback.domain.post.dto.FeedResponseDto;
 import bh.bhback.domain.post.dto.PostRequestDto;
 import bh.bhback.domain.post.dto.PostResponseDto;
@@ -56,8 +56,8 @@ public class PostController {
             )
     })
     @ApiOperation(value="게시물 조회(업로드 순 정렬)", notes = "게시물 조회")
-    @GetMapping("/feed") //임시 url
-    public ListResult<FeedResponseDto> getFeed(@PageableDefault(size=5) Pageable pageable)
+    @GetMapping("/feed")
+    public ListResult<FeedResponseDto> getFeed(@PageableDefault(size=10) Pageable pageable)
     {
         return responseService.getListResult(postService.getFeed(pageable));
     }
@@ -71,10 +71,10 @@ public class PostController {
             )
     })
     @ApiOperation(value="유저 피드 조회", notes = "유저가 올린 게시물 리스트 조회")
-    @GetMapping("/user/{userId}")
-    public ListResult<FeedResponseDto> getUserFeed(@PathVariable Long userId)
+    @GetMapping("/feed/{userId}")
+    public ListResult<FeedResponseDto> getUserFeed(@PathVariable Long userId, @PageableDefault(size=10) Pageable pageable)
     {
-        return responseService.getListResult(postService.getUserFeed(userId));
+        return responseService.getListResult(postService.getUserFeed(userId, pageable));
     }
 
     //유저가 올린 게시물 리스트 조회
@@ -86,10 +86,10 @@ public class PostController {
             )
     })
     @ApiOperation(value="내가 올린 피드 조회", notes = "내가 올린 게시물 리스트 조회")
-    @GetMapping("/user/me")
-    public ListResult<FeedResponseDto> getMyFeed(@AuthenticationPrincipal User user)
+    @GetMapping("/feed/me")
+    public ListResult<FeedResponseDto> getMyFeed(@AuthenticationPrincipal User user, @PageableDefault(size=10) Pageable pageable)
     {
-        return responseService.getListResult(postService.getUserFeed(user));
+        return responseService.getListResult(postService.getUserFeed(user, pageable));
     }
 
     //게시물 등록

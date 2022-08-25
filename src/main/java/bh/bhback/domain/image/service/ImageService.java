@@ -2,7 +2,7 @@ package bh.bhback.domain.image.service;
 
 import bh.bhback.domain.image.dto.ImageDto;
 import bh.bhback.domain.image.entity.Image;
-import bh.bhback.domain.image.exception.WrongFileTypeException;
+import bh.bhback.global.error.advice.exception.WrongFileTypeException;
 import bh.bhback.domain.image.repository.ImageJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,8 +1,8 @@
 package bh.bhback.domain.auth.social.kakao.service;
 
 
-import bh.bhback.domain.auth.exception.CCommunicationException;
-import bh.bhback.domain.auth.social.kakao.domain.RetKakaoOAuth;
+import bh.bhback.global.error.advice.exception.CCommunicationException;
+import bh.bhback.domain.auth.social.kakao.dto.RetKakaoOAuth;
 import bh.bhback.domain.auth.social.kakao.dto.KakaoProfile;
 import com.google.gson.Gson;
 

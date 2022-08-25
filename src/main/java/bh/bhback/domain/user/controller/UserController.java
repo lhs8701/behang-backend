@@ -1,18 +1,16 @@
 package bh.bhback.domain.user.controller;
 
 
-import bh.bhback.domain.common.ResponseService;
-import bh.bhback.domain.model.response.CommonResult;
-import bh.bhback.domain.model.response.ListResult;
-import bh.bhback.domain.model.response.SingleResult;
+import bh.bhback.global.common.response.service.ResponseService;
+import bh.bhback.global.common.response.dto.CommonResult;
+import bh.bhback.global.common.response.dto.ListResult;
+import bh.bhback.global.common.response.dto.SingleResult;
 import bh.bhback.domain.user.dto.UserProfileDto;
 import bh.bhback.domain.user.dto.UserResponseDto;
-import bh.bhback.domain.user.entity.User;
 import bh.bhback.domain.user.service.UserService;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 

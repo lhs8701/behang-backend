@@ -1,10 +1,10 @@
 package bh.bhback.global.error.advice;
 
-import bh.bhback.domain.auth.exception.CCommunicationException;
-import bh.bhback.domain.auth.exception.CSocialAgreementException;
-import bh.bhback.domain.common.ResponseService;
-import bh.bhback.domain.image.exception.WrongFileTypeException;
-import bh.bhback.domain.model.response.CommonResult;
+import bh.bhback.global.error.advice.exception.CCommunicationException;
+import bh.bhback.global.error.advice.exception.CSocialAgreementException;
+import bh.bhback.global.common.response.service.ResponseService;
+import bh.bhback.global.error.advice.exception.WrongFileTypeException;
+import bh.bhback.global.common.response.dto.CommonResult;
 import bh.bhback.global.error.ErrorCode;
 
 import bh.bhback.global.error.advice.exception.*;
