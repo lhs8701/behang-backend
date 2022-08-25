@@ -75,13 +75,9 @@ public class PostService {
             return new PostResponseDto(post, null);
         }
     }
-
-    @Transactional
-    public List<FeedResponseDto> getUserFeed(Long userId) {
-        User user = userJpaRepository.findById(userId)
-                .orElseThrow(CUserNotFoundException::new);
-
-        List<Post> postList = user.getPostList(); //없을 경우 에러처리
+    @Transactional // 최신순 정렬(임시)
+    public List<FeedResponseDto> getFeed(Pageable pageable) {
+        List<Post> postList = postJpaRepository.findAllByOrderByCreatedDateDesc(pageable);
         List<FeedResponseDto> feedList = new ArrayList<>();
         try {
             for (Post post : postList) {
@@ -97,9 +93,35 @@ public class PostService {
         return feedList;
     }
 
-    @Transactional
-    public List<FeedResponseDto> getFeed(Pageable pageable) {
-        List<Post> postList = postJpaRepository.findAllByOrderByCreatedDateDesc(pageable);
+    @Transactional // 최신순 정렬(임시)
+    public List<FeedResponseDto> getUserFeed(Long userId, Pageable pageable) {
+        User user = userJpaRepository.findById(userId)
+                .orElseThrow(CUserNotFoundException::new);
+//      List<Post> postList = user.getPostList();
+        List<Post> postList = postJpaRepository.findAllByUserOrderByCreatedDateDesc(user, pageable);
+        List<FeedResponseDto> feedList = new ArrayList<>();
+
+        try {
+            for (Post post : postList) {
+                String fileUrl = post.getImage().getFileUrl();
+                File file = new File(fileUrl);
+                FeedResponseDto feedResponseDto = new FeedResponseDto(post, FileCopyUtils.copyToByteArray(file));
+                feedList.add(feedResponseDto);
+            }
+        } catch (Exception e) {
+            log.info("image copyToByteArray error" + e.getMessage());
+            return feedList;
+        }
+        return feedList;
+    }
+
+    @Transactional // 최신순 정렬(임시)
+    public List<FeedResponseDto> getUserFeed(User user, Pageable pageable) {
+        userJpaRepository.findById(user.getUserId()).orElseThrow(CUserNotFoundException::new);
+
+//      List<Post> postList = user.getPostList();
+        List<Post> postList = postJpaRepository.findAllByUserOrderByCreatedDateDesc(user, pageable);
+
         List<FeedResponseDto> feedList = new ArrayList<>();
         try {
             for (Post post : postList) {

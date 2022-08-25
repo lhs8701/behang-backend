@@ -1,7 +1,7 @@
 package bh.bhback.domain.image.entity;
 
 import bh.bhback.domain.post.entity.Post;
-import bh.bhback.global.common.BaseTimeEntity;
+import bh.bhback.global.common.jpa.BaseTimeEntity;
 import lombok.*;
 
 import javax.persistence.*;

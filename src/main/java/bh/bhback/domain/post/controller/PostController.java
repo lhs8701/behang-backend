@@ -1,38 +1,29 @@
 package bh.bhback.domain.post.controller;
 
-import bh.bhback.domain.common.ResponseService;
-import bh.bhback.domain.model.response.CommonResult;
-import bh.bhback.domain.model.response.ListResult;
-import bh.bhback.domain.model.response.SingleResult;
+import bh.bhback.global.common.response.service.ResponseService;
+import bh.bhback.global.common.response.dto.CommonResult;
+import bh.bhback.global.common.response.dto.ListResult;
+import bh.bhback.global.common.response.dto.SingleResult;
 import bh.bhback.domain.post.dto.FeedResponseDto;
 import bh.bhback.domain.post.dto.PostRequestDto;
 import bh.bhback.domain.post.dto.PostResponseDto;
 import bh.bhback.domain.post.dto.PostUpdateParam;
-import bh.bhback.domain.post.entity.Post;
 import bh.bhback.domain.post.service.PostService;
-import bh.bhback.domain.user.dto.UserProfileDto;
 import bh.bhback.domain.user.entity.User;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/post")
+@Api(tags = {"Post"})
+@RequestMapping("/posts")
 @RequiredArgsConstructor
 public class PostController {
 
@@ -65,8 +56,8 @@ public class PostController {
             )
     })
     @ApiOperation(value="게시물 조회(업로드 순 정렬)", notes = "게시물 조회")
-    @GetMapping("/feed") //임시 url
-    public ListResult<FeedResponseDto> getFeed(@PageableDefault(size=5) Pageable pageable)
+    @GetMapping("/feed")
+    public ListResult<FeedResponseDto> getFeed(@PageableDefault(size=10) Pageable pageable)
     {
         return responseService.getListResult(postService.getFeed(pageable));
     }
@@ -80,12 +71,26 @@ public class PostController {
             )
     })
     @ApiOperation(value="유저 피드 조회", notes = "유저가 올린 게시물 리스트 조회")
-    @GetMapping("/user/{userId}")
-    public ListResult<FeedResponseDto> getUserFeed(@PathVariable Long userId)
+    @GetMapping("/feed/{userId}")
+    public ListResult<FeedResponseDto> getUserFeed(@PathVariable Long userId, @PageableDefault(size=10) Pageable pageable)
     {
-        return responseService.getListResult(postService.getUserFeed(userId));
+        return responseService.getListResult(postService.getUserFeed(userId, pageable));
     }
 
+    //유저가 올린 게시물 리스트 조회
+    @ApiImplicitParams({
+            @ApiImplicitParam(
+                    name = "X-AUTH-TOKEN",
+                    value = "AccessToken",
+                    required = true, dataType="String", paramType = "header"
+            )
+    })
+    @ApiOperation(value="내가 올린 피드 조회", notes = "내가 올린 게시물 리스트 조회")
+    @GetMapping("/feed/me")
+    public ListResult<FeedResponseDto> getMyFeed(@AuthenticationPrincipal User user, @PageableDefault(size=10) Pageable pageable)
+    {
+        return responseService.getListResult(postService.getUserFeed(user, pageable));
+    }
 
     //게시물 등록
     @ApiImplicitParams({

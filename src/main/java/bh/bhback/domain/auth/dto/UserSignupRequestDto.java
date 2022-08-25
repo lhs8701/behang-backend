@@ -10,7 +10,7 @@ import java.util.Collections;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserSignupRequestDto {
-    private Long socialId;
+    private String socialId;
     private String password;
     private String nickName;
     private String profileImage;

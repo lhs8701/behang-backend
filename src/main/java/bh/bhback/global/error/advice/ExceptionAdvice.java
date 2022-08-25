@@ -1,10 +1,10 @@
 package bh.bhback.global.error.advice;
 
-import bh.bhback.domain.auth.exception.CCommunicationException;
-import bh.bhback.domain.auth.exception.CSocialAgreementException;
-import bh.bhback.domain.common.ResponseService;
-import bh.bhback.domain.image.exception.WrongFileTypeException;
-import bh.bhback.domain.model.response.CommonResult;
+import bh.bhback.global.error.advice.exception.CCommunicationException;
+import bh.bhback.global.error.advice.exception.CSocialAgreementException;
+import bh.bhback.global.common.response.service.ResponseService;
+import bh.bhback.global.error.advice.exception.WrongFileTypeException;
+import bh.bhback.global.common.response.dto.CommonResult;
 import bh.bhback.global.error.ErrorCode;
 
 import bh.bhback.global.error.advice.exception.*;
@@ -74,7 +74,7 @@ public class ExceptionAdvice {
     }
 
     /**
-     * refresh token 에러시 발생 시키는 에러
+     * refresh token이 잘못되었을 경우
      */
     @ExceptionHandler(CRefreshTokenException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
@@ -142,6 +142,17 @@ public class ExceptionAdvice {
         return responseService.getFailResult
                 (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
     }
+
+    /**
+     * 리프레쉬 토큰이 만료되었을 경우
+     */
+    @ExceptionHandler(CRefreshTokenExpiredException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    protected CommonResult refreshTokenExpiredException(HttpServletRequest request, CRefreshTokenExpiredException e) {
+        return responseService.getFailResult
+                (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
+    }
+
 }
 
 
