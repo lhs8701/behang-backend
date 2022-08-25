@@ -8,31 +8,22 @@ import bh.bhback.domain.post.dto.FeedResponseDto;
 import bh.bhback.domain.post.dto.PostRequestDto;
 import bh.bhback.domain.post.dto.PostResponseDto;
 import bh.bhback.domain.post.dto.PostUpdateParam;
-import bh.bhback.domain.post.entity.Post;
 import bh.bhback.domain.post.service.PostService;
-import bh.bhback.domain.user.dto.UserProfileDto;
 import bh.bhback.domain.user.entity.User;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/post")
+@Api(tags = {"Post"})
+@RequestMapping("/posts")
 @RequiredArgsConstructor
 public class PostController {
 
@@ -86,6 +77,20 @@ public class PostController {
         return responseService.getListResult(postService.getUserFeed(userId));
     }
 
+    //유저가 올린 게시물 리스트 조회
+    @ApiImplicitParams({
+            @ApiImplicitParam(
+                    name = "X-AUTH-TOKEN",
+                    value = "AccessToken",
+                    required = true, dataType="String", paramType = "header"
+            )
+    })
+    @ApiOperation(value="내가 올린 피드 조회", notes = "내가 올린 게시물 리스트 조회")
+    @GetMapping("/user/me")
+    public ListResult<FeedResponseDto> getMyFeed(@AuthenticationPrincipal User user)
+    {
+        return responseService.getListResult(postService.getUserFeed(user));
+    }
 
     //게시물 등록
     @ApiImplicitParams({

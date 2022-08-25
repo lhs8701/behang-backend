@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @Api(tags = {"User"})
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/v1/users")
+@RequestMapping("users")
 @Slf4j
 public class UserController {
 

@@ -1,5 +1,6 @@
 package bh.bhback.global.config.security;
 
+import bh.bhback.domain.image.entity.Image;
 import lombok.*;
 
 @Getter

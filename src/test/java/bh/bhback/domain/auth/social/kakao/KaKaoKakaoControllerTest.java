@@ -33,7 +33,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-public class KaKaoSignControllerTest {
+public class KaKaoKakaoControllerTest {
     @Autowired
     private MockMvc mockMvc;
 

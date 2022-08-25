@@ -18,6 +18,10 @@ public enum ErrorCode {
     AGREEMENT_EXCEPTION(-1008, "필수동의 항목에 대해 동의가 필요합니다."),
     POST_NOT_FOUND(-1009,"해당 게시물을 찾을 수 없습니다."),
     WRONG_FILE_TYPE_EXCEPTION(-1010, "파일이 없거나, 지원하지 않는 형식입니다."),
+    EXPIRED_ACCESS_TOKEN(-1011, "액세스 토큰이 만료되었습니다."),
+    UNSUPPORTED_TOKEN(-1012, "지원하지 않는 토큰입니다."),
+    WRONG_TOKEN(-1013, "잘못된 토큰입니다."),
+    REFRESH_TOKEN_EXPIRED(-1014, "리프레쉬 토큰이 만료되었습니다. 로그인을 다시 해주세요."),
 
     WRONG_APPROACH(-9998, "잘못된 접근입니다."),
     INTERNAL_SERVER_ERROR(-9999, "서버 에러입니다.");

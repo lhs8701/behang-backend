@@ -4,7 +4,6 @@ import bh.bhback.global.common.BaseTimeEntity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.*;
 
@@ -16,10 +15,10 @@ public class RefreshToken extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private Long id;
 
     @Column(nullable = false)
-    private Long key;
+    private Long userKey;
 
     @Column(nullable = false)
     private String token;
@@ -30,8 +29,8 @@ public class RefreshToken extends BaseTimeEntity {
     }
 
     @Builder
-    public RefreshToken(Long key, String token) {
-        this.key = key;
+    public RefreshToken(Long userKey, String token) {
+        this.userKey = userKey;
         this.token = token;
     }
 }

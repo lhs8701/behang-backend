@@ -37,10 +37,11 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         log.info("[Verifying token]");
         log.info(((HttpServletRequest) request).getRequestURL().toString());
 
-        if (token != null && jwtProvider.validationToken(token)) {
+        if (token != null && jwtProvider.validationToken(token, (HttpServletRequest) request)) {
             Authentication authentication = jwtProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
+        //다음 차례 필터 클래스 객체의 doFilter() 메소드를 호출시키는 기능
         filterChain.doFilter(request, response);
     }
 }

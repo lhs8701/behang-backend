@@ -96,6 +96,25 @@ public class PostService {
         }
         return feedList;
     }
+    @Transactional
+    public List<FeedResponseDto> getUserFeed(User user) {
+        userJpaRepository.findById(user.getUserId()).orElseThrow(CUserNotFoundException::new);
+
+        List<Post> postList = user.getPostList(); //없을 경우 에러처리
+        List<FeedResponseDto> feedList = new ArrayList<>();
+        try {
+            for (Post post : postList) {
+                String fileUrl = post.getImage().getFileUrl();
+                File file = new File(fileUrl);
+                FeedResponseDto feedResponseDto = new FeedResponseDto(post, FileCopyUtils.copyToByteArray(file));
+                feedList.add(feedResponseDto);
+            }
+        } catch (Exception e) {
+            log.info("image copyToByteArray error" + e.getMessage());
+            return feedList;
+        }
+        return feedList;
+    }
 
     @Transactional
     public List<FeedResponseDto> getFeed(Pageable pageable) {

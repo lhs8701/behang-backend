@@ -47,8 +47,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
             .authorizeRequests()
             .mvcMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-            .antMatchers(HttpMethod.POST, "/v1/signup", "/v1/login",
-                    "/v1/reissue", "/v1/social/**").permitAll()
+            .antMatchers(HttpMethod.POST, "/signup", "/login",
+                    "/reissue", "/social/**").permitAll()
             .antMatchers(HttpMethod.GET, "/oauth/kakao/**").permitAll()
             .antMatchers(HttpMethod.GET, "/exception/**").permitAll()
             .anyRequest().hasRole("USER")
@@ -60,6 +60,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
             .and()
             .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
+
         //jwt 인증 필터를 MembernamePasswordAuthenticationFilter.class 전에 넣는다.
     }
 

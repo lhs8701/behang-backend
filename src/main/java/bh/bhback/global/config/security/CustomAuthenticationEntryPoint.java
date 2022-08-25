@@ -1,5 +1,7 @@
 package bh.bhback.global.config.security;
 
+import bh.bhback.global.error.ErrorCode;
+import org.json.simple.JSONObject;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -21,6 +23,37 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
             HttpServletResponse response,
             AuthenticationException authException) throws IOException, ServletException {
 
-        response.sendRedirect("/exception/entrypoint");
+        String exception = String.valueOf(request.getAttribute("exception"));
+
+        //알수없는 오류
+        if(exception == null) {
+            setResponse(response, ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+        //잘못된 타입의 토큰인 경우
+        else if(exception.equals(String.valueOf(ErrorCode.WRONG_TOKEN.getCode()))) {
+            setResponse(response, ErrorCode.WRONG_TOKEN);
+        }
+        //토큰 만료된 경우
+        else if(exception.equals(String.valueOf(ErrorCode.EXPIRED_ACCESS_TOKEN.getCode()))) {
+            setResponse(response, ErrorCode.EXPIRED_ACCESS_TOKEN);
+        }
+        //지원되지 않는 토큰인 경우
+        else if(exception.equals(String.valueOf(ErrorCode.UNSUPPORTED_TOKEN.getCode()))) {
+            setResponse(response, ErrorCode.UNSUPPORTED_TOKEN);
+        }
+        else {
+            response.sendRedirect("/exception/entrypoint");
+        }
+    }
+    private void setResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+        JSONObject responseJson = new JSONObject();
+        responseJson.put("success", false);
+        responseJson.put("msg", errorCode.getDescription());
+        responseJson.put("code", errorCode.getCode());
+
+        response.getWriter().print(responseJson);
     }
 }

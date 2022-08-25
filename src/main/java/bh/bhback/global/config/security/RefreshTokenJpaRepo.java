@@ -1,11 +1,16 @@
 package bh.bhback.global.config.security;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
-public interface RefreshTokenJpaRepo extends JpaRepository<RefreshToken, String> {
+public interface RefreshTokenJpaRepo extends JpaRepository<RefreshToken, Long> {
 
-    Optional<RefreshToken> findByKey(Long key);
+    Optional<RefreshToken> findByUserKey(Long userKey);
+    void deleteAllByUserKey(Long userKey);
+
+    @Transactional
+    void deleteByUserKey(Long userKey);
 }

@@ -3,10 +3,9 @@ package bh.bhback.domain.auth.controller;
 
 
 import bh.bhback.domain.auth.exception.CCommunicationException;
-import bh.bhback.domain.auth.social.kakao.service.KakaoService;
+import bh.bhback.domain.auth.social.kakao.service.KakaoApiService;
 import bh.bhback.domain.common.ResponseService;
 import bh.bhback.domain.model.response.CommonResult;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,16 +17,18 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
+import springfox.documentation.annotations.ApiIgnore;
 
 @Slf4j
 @Controller
 @RequiredArgsConstructor
+@ApiIgnore
 @RequestMapping("/oauth/kakao")
 public class KOAuthController {
 
     private final RestTemplate restTemplate;
     private final Environment env;
-    private final KakaoService kakaoService;
+    private final KakaoApiService kakaoApiService;
     private final ResponseService responseService;
 
     @Value("${social.kakao.client-id}")
@@ -55,7 +56,7 @@ public class KOAuthController {
             ModelAndView mav,
             @ApiParam(value = "Authorization Code", required = true)
             @RequestParam String code) {
-        mav.addObject("authInfo", kakaoService.getKakaoTokenInfo(code));
+        mav.addObject("authInfo", kakaoApiService.getKakaoTokenInfo(code));
         mav.setViewName("social/redirectKakao");
         return mav;
     }

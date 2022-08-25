@@ -1,6 +1,7 @@
 package bh.bhback.global.config.security;
 
 
+import bh.bhback.global.error.ErrorCode;
 import bh.bhback.global.error.advice.exception.CAuthenticationEntryPointException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.impl.Base64UrlCodec;
@@ -29,7 +30,7 @@ public class JwtProvider {
     private String secretKey;
     private final UserDetailsService userDetailsService;
     private String ROLES = "roles";
-    private final Long accessTokenValidMillisecond = 60 * 60 * 1000L; // 1 hour
+    private final Long accessTokenValidMillisecond = 60 * 60 * 1000L; // 1 hour (밀리초 단위)
     private final Long refreshTokenValidMillisecond = 14 * 24 * 60 * 60 * 1000L; // 14 day
 
 
@@ -72,7 +73,7 @@ public class JwtProvider {
 
 
     // Jwt 로 인증정보를 조회
-    public Authentication getAuthentication (String token) {
+    public Authentication getAuthentication(String token) {
         // Jwt 에서 claims 추출
         Claims claims = parseClaims(token);
 
@@ -115,6 +116,25 @@ public class JwtProvider {
             log.error("지원하지 않는 토큰입니다.");
         } catch (IllegalArgumentException e) {
             log.error("잘못된 토큰입니다.");
+        }
+        return false;
+    }
+
+    public boolean validationToken(String token, HttpServletRequest request) {
+        try {
+            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            return true;
+        } catch (SecurityException | MalformedJwtException e) {
+            log.error("잘못된 Jwt 서명입니다.");
+        } catch (ExpiredJwtException e) {
+            log.error("만료된 토큰입니다.");
+            request.setAttribute("exception", ErrorCode.EXPIRED_ACCESS_TOKEN.getCode());
+        } catch (UnsupportedJwtException e) {
+            log.error("지원하지 않는 토큰입니다.");
+            request.setAttribute("exception", ErrorCode.UNSUPPORTED_TOKEN.getCode());
+        } catch (IllegalArgumentException e) {
+            log.error("잘못된 토큰입니다.");
+            request.setAttribute("exception", ErrorCode.WRONG_TOKEN.getCode());
         }
         return false;
     }
