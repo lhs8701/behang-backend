@@ -153,6 +153,15 @@ public class ExceptionAdvice {
                 (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
     }
 
+    /**
+     * 로그아웃된 회원의 토큰으로 접근
+     */
+    @ExceptionHandler(CLogoutException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    protected CommonResult logoutException(HttpServletRequest request, CLogoutException e) {
+        return responseService.getFailResult
+                (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
+    }
 }
 
 
