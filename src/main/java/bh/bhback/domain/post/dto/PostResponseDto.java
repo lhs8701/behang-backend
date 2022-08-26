@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Getter
 public class PostResponseDto {
     private UserProfileDto userProfileDto;
-    private byte[] imageFile;
+    private String imageUrl;
     private String imageOriName;
     private Tag tag;
     private Place place;
@@ -26,9 +26,9 @@ public class PostResponseDto {
     private LocalDateTime createDate;
 
 
-    public PostResponseDto(Post post, byte[] imageFile){
+    public PostResponseDto(Post post){
         this.userProfileDto = new UserProfileDto(post.getUser());
-        this.imageFile = imageFile;
+        this.imageUrl = post.getImage().getFileUrl();
         this.imageOriName = post.getImage().getFileOriName();
         this.tag = post.getTag();
         this.place = post.getPlace();

@@ -11,6 +11,7 @@ import bh.bhback.domain.user.service.UserService;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("users")
 @Slf4j
+@PreAuthorize("permitAll()")
 public class UserController {
 
     private final UserService userService;
@@ -64,6 +66,7 @@ public class UserController {
                     required = true, dataType = "String", paramType = "header")
     })
     @ApiOperation(value = "유저 프로필 수정", notes = "회원 아이디로 프로필을 수정합니다.")
+    @PreAuthorize("hasRole('USER')")
     @PostMapping(value = "profile/{userId}", headers = "X-AUTH-TOKEN")
     public SingleResult<UserProfileDto> updateUserProfile
     (@ApiParam(value = "회원 아이디", required = true) @PathVariable Long userId,
@@ -71,5 +74,4 @@ public class UserController {
     ) {
         return responseService.getSingleResult(userService.updateUserProfile(userId, userProfileDto));
     }
-
 }

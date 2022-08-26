@@ -43,11 +43,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
             .authorizeRequests()
             .mvcMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-            .antMatchers(HttpMethod.POST, "/signup", "/login",
-                    "/reissue", "/social/**").permitAll()
-            .antMatchers(HttpMethod.GET, "/oauth/kakao/**").permitAll()
             .antMatchers(HttpMethod.GET, "/exception/**").permitAll()
-            .anyRequest().hasRole("USER")
+
+//            .antMatchers(HttpMethod.POST, "/signup", "/login",
+//                    "/reissue", "/social/**").permitAll()
+//            .antMatchers(HttpMethod.GET, "/oauth/kakao/**").permitAll()
+//            .anyRequest().hasRole("USER")
 
             .and()
             .exceptionHandling()

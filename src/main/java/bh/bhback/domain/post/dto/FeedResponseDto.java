@@ -9,11 +9,11 @@ import lombok.Getter;
 @Getter
 public class FeedResponseDto {
     private Long id;
-    private byte[] image;
+    private String imageUrl;
 
 
-    public FeedResponseDto(Post post, byte[] image){
+    public FeedResponseDto(Post post){
         this.id = post.getId();
-        this.image = image;
+        this.imageUrl = post.getImage().getFileUrl();
     }
 }

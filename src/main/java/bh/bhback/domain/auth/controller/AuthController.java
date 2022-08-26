@@ -11,6 +11,7 @@ import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +27,7 @@ public class AuthController {
     @ApiOperation(
             value = "액세스, 리프레시 토큰 재발급",
             notes = "엑세스 토큰 만료시 회원 검증 후 리프레쉬 토큰을 검증해서 액세스 토큰과 리프레시 토큰을 재발급합니다.")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/reissue")
     public SingleResult<TokenDto> reissue(
             @ApiParam(value = "토큰 재발급 요청 DTO", required = true)
@@ -40,6 +42,7 @@ public class AuthController {
                     required = true, dataType = "String", paramType = "header"
             )
     })
+    @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/logout", headers = "X-AUTH-TOKEN")
     public CommonResult logout(@RequestHeader("X-AUTH-TOKEN") String accessToken) {
 
@@ -54,6 +57,7 @@ public class AuthController {
                     required = true, dataType = "String", paramType = "header"
             )
     })
+    @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/withdrawal", headers = "X-AUTH-TOKEN")
     public CommonResult withdrawal(@RequestHeader("X-AUTH-TOKEN") String accessToken, @AuthenticationPrincipal User user) {
 
