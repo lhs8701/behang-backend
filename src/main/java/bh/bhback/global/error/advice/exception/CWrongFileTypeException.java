@@ -4,13 +4,12 @@ import bh.bhback.global.error.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@AllArgsConstructor
 @Getter
-public class WrongApproachException extends RuntimeException{
+@AllArgsConstructor
+public class CWrongFileTypeException extends RuntimeException {
     ErrorCode errorCode;
-
-    public WrongApproachException() {
+    public CWrongFileTypeException(){
         super();
-        errorCode = ErrorCode.WRONG_APPROACH;
+        this.errorCode = ErrorCode.WRONG_FILE_TYPE_EXCEPTION;
     }
 }

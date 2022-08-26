@@ -6,10 +6,10 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class PostNotFoundException extends RuntimeException {
+public class CPostNotFoundException extends RuntimeException {
     private final ErrorCode errorCode;
 
-    public PostNotFoundException(){
+    public CPostNotFoundException(){
         super();
         errorCode = ErrorCode.POST_NOT_FOUND;
     }
