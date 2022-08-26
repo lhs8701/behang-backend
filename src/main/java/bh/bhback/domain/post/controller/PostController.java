@@ -31,64 +31,38 @@ public class PostController {
     private final ResponseService responseService;
 
 
-    //게시물 세부 조회(로컬 저장소)
-    @ApiImplicitParams({
-            @ApiImplicitParam(
-                    name = "X-AUTH-TOKEN",
-                    value = "AccessToken",
-                    required = true, dataType="String", paramType = "header"
-            )
-    })
-    @ApiOperation(value="게시물 조회(로컬 저장소)", notes = "게시물 조회")
+    @ApiOperation(value = "게시물 조회", notes = "게시물 조회")
     @GetMapping("/{postId}")
-    public SingleResult<PostResponseDto> getPost (@PathVariable Long postId)
-    {
+    public SingleResult<PostResponseDto> getPost(@PathVariable Long postId) {
         return responseService.getSingleResult(postService.getPost(postId));
     }
 
 
     //피드 조회(페이징 적용 - 업로드 순)
-    @ApiImplicitParams({
-            @ApiImplicitParam(
-                    name = "X-AUTH-TOKEN",
-                    value = "AccessToken",
-                    required = true, dataType="String", paramType = "header"
-            )
-    })
-    @ApiOperation(value="게시물 조회(업로드 순 정렬)", notes = "게시물 조회")
+    @ApiOperation(value = "피드 조회(업로드 순 정렬)", notes = "메인 피드 조회")
     @GetMapping("/feed")
-    public ListResult<FeedResponseDto> getFeed(@PageableDefault(size=10) Pageable pageable)
-    {
+    public ListResult<FeedResponseDto> getFeed(@PageableDefault(size = 10) Pageable pageable) {
         return responseService.getListResult(postService.getFeed(pageable));
     }
 
-    //유저가 올린 게시물 리스트 조회
-    @ApiImplicitParams({
-            @ApiImplicitParam(
-                    name = "X-AUTH-TOKEN",
-                    value = "AccessToken",
-                    required = true, dataType="String", paramType = "header"
-            )
-    })
-    @ApiOperation(value="유저 피드 조회", notes = "유저가 올린 게시물 리스트 조회")
+    //유저 피드 조회(페이징 적용 - 업로드 순)
+    @ApiOperation(value = "유저 피드 조회", notes = "해당 유저의 피드 조회")
     @GetMapping("/feed/{userId}")
-    public ListResult<FeedResponseDto> getUserFeed(@PathVariable Long userId, @PageableDefault(size=10) Pageable pageable)
-    {
+    public ListResult<FeedResponseDto> getUserFeed(@PathVariable Long userId, @PageableDefault(size = 10) Pageable pageable) {
         return responseService.getListResult(postService.getUserFeed(userId, pageable));
     }
 
-    //유저가 올린 게시물 리스트 조회
+    //내 피드 조회(페이징 적용 - 업로드 순)
     @ApiImplicitParams({
             @ApiImplicitParam(
                     name = "X-AUTH-TOKEN",
                     value = "AccessToken",
-                    required = true, dataType="String", paramType = "header"
+                    required = true, dataType = "String", paramType = "header"
             )
     })
-    @ApiOperation(value="내가 올린 피드 조회", notes = "내가 올린 게시물 리스트 조회")
-    @GetMapping("/feed/me")
-    public ListResult<FeedResponseDto> getMyFeed(@AuthenticationPrincipal User user, @PageableDefault(size=10) Pageable pageable)
-    {
+    @ApiOperation(value = "내가 올린 피드 조회", notes = "나의 피드 조회")
+    @GetMapping(value = "/feed/me", headers = "X-AUTH-TOKEN")
+    public ListResult<FeedResponseDto> getMyFeed(@AuthenticationPrincipal User user, @PageableDefault(size = 10) Pageable pageable) {
         return responseService.getListResult(postService.getUserFeed(user, pageable));
     }
 
@@ -97,28 +71,26 @@ public class PostController {
             @ApiImplicitParam(
                     name = "X-AUTH-TOKEN",
                     value = "AccessToken",
-                    required = true, dataType="String", paramType = "header"
+                    required = true, dataType = "String", paramType = "header"
             )
     })
-    @ApiOperation(value="게시물 등록", notes = "게시물 등록")
-    @PostMapping()
-    public SingleResult<Long> upload (@RequestPart PostRequestDto postRequestDto, @RequestPart MultipartFile file, @AuthenticationPrincipal User user)
-    {
+    @ApiOperation(value = "게시물 등록", notes = "게시물 등록")
+    @PostMapping(headers = "X-AUTH-TOKEN")
+    public SingleResult<Long> upload(@RequestPart PostRequestDto postRequestDto, @RequestPart MultipartFile file, @AuthenticationPrincipal User user) {
         return responseService.getSingleResult(postService.create(postRequestDto, file, user));
     }
 
-    //게시물 수정
+    //    게시물 수정
     @ApiImplicitParams({
             @ApiImplicitParam(
                     name = "X-AUTH-TOKEN",
                     value = "AccessToken",
-                    required = true, dataType="String", paramType = "header"
+                    required = true, dataType = "String", paramType = "header"
             )
     })
-    @ApiOperation(value="게시물 수정", notes = "게시물 수정")
-    @PatchMapping("/{postId}")
-    public SingleResult<Long> update (@PathVariable Long postId, @RequestBody PostUpdateParam postUpdateParam)
-    {
+    @ApiOperation(value = "게시물 수정", notes = "게시물 수정")
+    @PatchMapping(value = "/{postId}", headers = "X-AUTH-TOKEN")
+    public SingleResult<Long> update(@PathVariable Long postId, @RequestBody PostUpdateParam postUpdateParam) {
         return responseService.getSingleResult(postService.update(postId, postUpdateParam));
     }
 
@@ -130,10 +102,9 @@ public class PostController {
                     required = true, dataType="String", paramType = "header"
             )
     })
-    @ApiOperation(value="게시물 삭제", notes = "게시물 삭제")
-    @DeleteMapping("/{postId}")
-    public CommonResult delete (@PathVariable Long postId)
-    {
+    @ApiOperation(value = "게시물 삭제", notes = "게시물 삭제")
+    @DeleteMapping(value = "/{postId}", headers = "X-AUTH-TOKEN")
+    public CommonResult delete(@PathVariable Long postId) {
         postService.delete(postId);
         return responseService.getSuccessResult();
     }

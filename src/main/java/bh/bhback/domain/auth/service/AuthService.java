@@ -6,12 +6,15 @@ import bh.bhback.domain.user.entity.User;
 import bh.bhback.domain.user.repository.UserJpaRepository;
 import bh.bhback.global.common.jwt.dto.TokenDto;
 import bh.bhback.global.common.jwt.dto.TokenRequestDto;
-import bh.bhback.global.common.jwt.repository.RefreshTokenJpaRepo;
+import bh.bhback.global.common.jwt.entity.JwtExpiration;
 import bh.bhback.global.error.advice.exception.CRefreshTokenException;
 import bh.bhback.global.error.advice.exception.CRefreshTokenExpiredException;
 import bh.bhback.global.error.advice.exception.CUserExistException;
+import bh.bhback.global.redis.LogoutAccessToken;
+import bh.bhback.global.redis.LogoutAccessTokenRedisRepository;
+import bh.bhback.global.redis.RefreshToken2;
+import bh.bhback.global.redis.RefreshTokenRedisRepository;
 import bh.bhback.global.security.*;
-import bh.bhback.global.common.jwt.entity.RefreshToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -25,7 +28,8 @@ public class AuthService {
 
     private final UserJpaRepository userJpaRepository;
     private final JwtProvider jwtProvider;
-    private final RefreshTokenJpaRepo refreshTokenJpaRepo;
+    private final RefreshTokenRedisRepository refreshTokenRedisRepository;
+    private final LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository;
 
     @Transactional
     public Long socialSignup(UserSignupRequestDto userSignupRequestDto) {
@@ -38,35 +42,51 @@ public class AuthService {
 
     @Transactional
     public TokenDto reissue(TokenRequestDto tokenRequestDto) {
-        // 만료된 refresh token 에러
-        if (!jwtProvider.validationToken(tokenRequestDto.getRefreshToken())) {
-            throw new CRefreshTokenExpiredException();
-        }
 
-        String accessToken = tokenRequestDto.getAccessToken();
-        Authentication authentication = jwtProvider.getAuthentication(accessToken);
+        String oldAccessToken = tokenRequestDto.getAccessToken();
+        Authentication authentication = jwtProvider.getAuthentication(oldAccessToken);
         User user = (User) authentication.getPrincipal();
 
-        RefreshToken refreshToken = refreshTokenJpaRepo.findByUserKey(user.getUserId())
-                .orElseThrow(CRefreshTokenException::new);
+        String oldRefreshToken = tokenRequestDto.getRefreshToken();
+        RefreshToken2 oldRedisRefreshToken = refreshTokenRedisRepository.findById(user.getUserId()).orElseThrow(CRefreshTokenExpiredException::new);
 
-
+        if (oldRefreshToken.equals(oldRedisRefreshToken.getRefreshToken())) {
+            String accessToken = jwtProvider.generateAccessToken(user.getUserId(), user.getRoles());
+            if (jwtProvider.getExpiration(oldRefreshToken) < JwtExpiration.REISSUE_EXPIRATION_TIME.getValue()) {
+                String refreshToken = jwtProvider.generateRefreshToken(user.getUserId(), user.getRoles());
+                refreshTokenRedisRepository.save(new RefreshToken2(user.getUserId(), refreshToken));
+                return TokenDto.builder()
+                        .grantType("bearer")
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .build();
+            }
+            return TokenDto.builder()
+                    .grantType("bearer")
+                    .accessToken(accessToken)
+                    .refreshToken(oldRefreshToken)
+                    .build();
+        }
         // 리프레시 토큰 불일치 에러
-        if (!refreshToken.getToken().equals(tokenRequestDto.getRefreshToken())) {
+        else {
             throw new CRefreshTokenException();
         }
+    }
 
-        // AccessToken, RefreshToken 토큰 재발급, 리프레쉬 토큰 저장
-        TokenDto newCreatedToken = jwtProvider.createTokenDto(user.getUserId(), user.getRoles());
-        RefreshToken updateRefreshToken = refreshToken.updateToken(newCreatedToken.getRefreshToken());
-//        refreshTokenJpaRepo.deleteAllByUserKey(refreshToken.getUserKey());
-        try{
-            refreshTokenJpaRepo.deleteByUserKey(refreshToken.getUserKey());
-        }catch (IllegalArgumentException e){
-            log.info("해당 칼럼이 없음");
-        }
-        refreshTokenJpaRepo.flush();
-        refreshTokenJpaRepo.save(updateRefreshToken);
-        return newCreatedToken;
+    public void logout(String accessToken) {
+        Authentication authentication = jwtProvider.getAuthentication(accessToken);
+        User user = (User) authentication.getPrincipal();
+        long remainMilliSeconds = jwtProvider.getExpiration(accessToken);
+
+        refreshTokenRedisRepository.deleteById(user.getUserId());
+        logoutAccessTokenRedisRepository.save(new LogoutAccessToken(accessToken, user.getUserId(), remainMilliSeconds));
+    }
+
+    public void withdrawal(String accessToken, User user) {
+        long remainMilliSeconds = jwtProvider.getExpiration(accessToken);
+
+        refreshTokenRedisRepository.deleteById(user.getUserId());
+        logoutAccessTokenRedisRepository.save(new LogoutAccessToken(accessToken, user.getUserId(), remainMilliSeconds));
+        userJpaRepository.deleteById(user.getUserId());
     }
 }

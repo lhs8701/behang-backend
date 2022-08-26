@@ -2,10 +2,14 @@ package bh.bhback.global.security;
 
 
 import bh.bhback.global.common.jwt.dto.TokenDto;
+import bh.bhback.global.common.jwt.entity.JwtExpiration;
 import bh.bhback.global.error.ErrorCode;
 import bh.bhback.global.error.advice.exception.CAuthenticationEntryPointException;
+import bh.bhback.global.error.advice.exception.CLogoutException;
+import bh.bhback.global.redis.LogoutAccessTokenRedisRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.impl.Base64UrlCodec;
+import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +22,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Date;
 import java.util.List;
 import java.lang.String;
@@ -27,22 +32,32 @@ import java.lang.String;
 @Component
 public class JwtProvider {
 
-    @Value("spring.jwt.secret") //암호키는 중요하므로 따로 빼서 관리
+    @Value("${spring.jwt.secret}") //암호키는 중요하므로 따로 빼서 관리
     private String secretKey;
     private final UserDetailsService userDetailsService;
+    private final LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository;
     private String ROLES = "roles";
-    private final Long accessTokenValidMillisecond = 60 * 60 * 1000L; // 1 hour (밀리초 단위)
-    private final Long refreshTokenValidMillisecond = 14 * 24 * 60 * 60 * 1000L; // 14 day
 
+//    @PostConstruct
+//    protected void init() { //암호화 알고리즘에 쓰일 secretKey를 등록함
+//        secretKey = Base64UrlCodec.BASE64URL.encode(secretKey.getBytes(StandardCharsets.UTF_8));
+//    }
 
-    @PostConstruct
-    protected void init() { //암호화 알고리즘에 쓰일 secretKey를 등록함
-        secretKey = Base64UrlCodec.BASE64URL.encode(secretKey.getBytes(StandardCharsets.UTF_8));
+    private Key getSigningKey(String secretKey) {
+        byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     // Jwt 생성 (access, refresh토큰을 각각 만들어서 tokenDto로 만든 후 반환)
-    public TokenDto createTokenDto(Long userPk, List<String> roles) { //토큰에 저장할 유저 pk와 권한 리스트를 매개변수로 받는다.
+    public TokenDto createTokenDto(String accessToken, String refreshToken) { //토큰에 저장할 유저 pk와 권한 리스트를 매개변수로 받는다.
+        return TokenDto.builder()
+                .grantType("bearer")
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
 
+    public String generateAccessToken(Long userPk, List<String> roles) {
         // user 구분을 위해 Claims에 User Pk값 넣어줌 (Claim 정보에는 토큰에 부가적으로 실어 보낼 정보를 담을 수 있다)
         Claims claims = Jwts.claims().setSubject(String.valueOf(userPk)); //claim의 subject 안에는 userPk값이 들어있음
         claims.put("roles", roles); //claim에 key-value 형태로 roles 속성 추가
@@ -54,22 +69,28 @@ public class JwtProvider {
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE) //access token, refresh token 시 추가된 부분
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + accessTokenValidMillisecond))
-                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .setExpiration(new Date(now.getTime() + JwtExpiration.ACCESS_TOKEN_EXPIRATION_TIME.getValue()))
+                .signWith(getSigningKey(secretKey), SignatureAlgorithm.HS256)
                 .compact();
+
+        return accessToken;
+    }
+
+    public String generateRefreshToken(Long userPk, List<String> roles) {
+// user 구분을 위해 Claims에 User Pk값 넣어줌 (Claim 정보에는 토큰에 부가적으로 실어 보낼 정보를 담을 수 있다)
+        Claims claims = Jwts.claims().setSubject(String.valueOf(userPk)); //claim의 subject 안에는 userPk값이 들어있음
+        claims.put("roles", roles); //claim에 key-value 형태로 roles 속성 추가
+
+        // 생성날짜, 만료날짜를 위한 Date
+        Date now = new Date();
 
         String refreshToken = Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE) //access token, refresh token 시 추가된 부분
-                .setExpiration(new Date(now.getTime() + refreshTokenValidMillisecond))
-                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .setExpiration(new Date(now.getTime() + JwtExpiration.REFRESH_TOKEN_EXPIRATION_TIME.getValue()))
+                .signWith(getSigningKey(secretKey), SignatureAlgorithm.HS256)
                 .compact();
 
-        return TokenDto.builder()
-                .grantType("bearer")
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .accessTokenExpireDate(accessTokenValidMillisecond)
-                .build();
+        return refreshToken;
     }
 
 
@@ -91,10 +112,16 @@ public class JwtProvider {
     // 만료된 토큰이여도 refresh token을 검증 후 재발급할 수 있도록 claims를 반환해 준다
     private Claims parseClaims(String token) {
         try {
-            return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+            return Jwts.parserBuilder().setSigningKey(getSigningKey(secretKey)).build().parseClaimsJws(token).getBody();
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
+    }
+
+    public long getExpiration(String token) {
+        Date expiration = Jwts.parserBuilder().setSigningKey(getSigningKey(secretKey)).build().parseClaimsJws(token).getBody().getExpiration();
+        Date now = new Date();
+        return expiration.getTime() - now.getTime();
     }
 
     // HTTP Request 의 Header 에서 Token Parsing -> "X-AUTH-TOKEN: jwt"
@@ -107,7 +134,7 @@ public class JwtProvider {
     // jwt 의 유효성 및 만료일자 확인
     public boolean validationToken(String token) {
         try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            Jwts.parserBuilder().setSigningKey(getSigningKey(secretKey)).build().parseClaimsJws(token);
             return true;
         } catch (SecurityException | MalformedJwtException e) {
             log.error("잘못된 Jwt 서명입니다.");
@@ -123,7 +150,12 @@ public class JwtProvider {
 
     public boolean validationToken(String token, HttpServletRequest request) {
         try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            Jwts.parserBuilder().setSigningKey(getSigningKey(secretKey)).build().parseClaimsJws(token);
+            if (logoutAccessTokenRedisRepository.existsById(token)) {
+                log.error("이미 로그아웃된 회원입니다.");
+                request.setAttribute("exception", ErrorCode.LOGOUT_ERROR.getCode());
+                return false;
+            }
             return true;
         } catch (SecurityException | MalformedJwtException e) {
             log.error("잘못된 Jwt 서명입니다.");
