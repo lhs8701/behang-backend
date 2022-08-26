@@ -4,16 +4,14 @@ package bh.bhback.domain.post.entity;
 import bh.bhback.domain.image.entity.Image;
 import bh.bhback.domain.user.entity.User;
 import bh.bhback.global.common.jpa.BaseTimeEntity;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 public class Post extends BaseTimeEntity {
 
@@ -33,7 +31,9 @@ public class Post extends BaseTimeEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Embedded
+    //@Embedded
+    @ManyToOne
+    @JoinColumn(name="content_id")
     private Place place;
 
     public void changeUser(User user){ //연관관계 편의 메서드

@@ -1,19 +1,31 @@
 package bh.bhback.domain.post.entity;
 
+import bh.bhback.global.common.jpa.BaseTimeEntity;
 import lombok.*;
 
-import javax.persistence.Embeddable;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
-@Embeddable
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @ToString
-public class Place {
+@Entity
+@Builder
+public class Place extends BaseTimeEntity {
+
+    @Id
+    //@Column(name="content_id")
+    private Long contentId;
+
     private String name;
     private String address;
     private String phoneNumber;
-    private Long contentId;
-    private Double mapx;
-    private Double mapy;
+    private Double mapX;
+    private Double mapY;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "place", fetch = FetchType.LAZY)
+    private List<Post> postList = new ArrayList<>();
 }
