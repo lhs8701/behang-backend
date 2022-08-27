@@ -1,6 +1,8 @@
 package bh.bhback.domain.user.controller;
 
 
+import bh.bhback.domain.user.dto.UserProfileUpdateParam;
+import bh.bhback.domain.user.entity.User;
 import bh.bhback.global.common.response.service.ResponseService;
 import bh.bhback.global.common.response.dto.CommonResult;
 import bh.bhback.global.common.response.dto.ListResult;
@@ -12,7 +14,9 @@ import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @Api(tags = {"User"})
@@ -52,26 +56,35 @@ public class UserController {
 
     //아이디로 유저 프로필 조회
     @ApiOperation(value = "유저 프로필 조회", notes = "회원 아이디로 프로필을 조회합니다.")
-    @GetMapping("profile/{userId}")
+    @PreAuthorize("permitAll()")
+    @GetMapping("/profile/{userId}")
     public SingleResult<UserProfileDto> getUserProfile
     (@ApiParam(value = "회원 아이디", required = true) @PathVariable Long userId) {
         return responseService.getSingleResult(userService.getUserProfile(userId));
     }
 
-    //아이디로 유저 프로필 수정
+    //내 프로필 조회
+    @ApiOperation(value = "유저 프로필 조회", notes = "회원 아이디로 프로필을 조회합니다.")
+    @PreAuthorize("permitAll()")
+    @GetMapping("/profile/me")
+    public SingleResult<UserProfileDto> getMyProfile
+    (@ApiParam(value = "회원 아이디", required = true) @AuthenticationPrincipal User user) {
+        return responseService.getSingleResult(userService.getUserProfile(user.getUserId()));
+    }
+
+    // 내 프로필 수정
     @ApiImplicitParams({
             @ApiImplicitParam(
                     name = "X-AUTH-TOKEN",
-                    value = "로그인 성공 후 AccessToken",
-                    required = true, dataType = "String", paramType = "header")
+                    value = "AccessToken",
+                    required = true, dataType = "String", paramType = "header"
+            )
     })
     @ApiOperation(value = "유저 프로필 수정", notes = "회원 아이디로 프로필을 수정합니다.")
     @PreAuthorize("hasRole('USER')")
-    @PostMapping(value = "profile/{userId}", headers = "X-AUTH-TOKEN")
-    public SingleResult<UserProfileDto> updateUserProfile
-    (@ApiParam(value = "회원 아이디", required = true) @PathVariable Long userId,
-     @ApiParam(value = "회원 수정", required = true) UserProfileDto userProfileDto
-    ) {
-        return responseService.getSingleResult(userService.updateUserProfile(userId, userProfileDto));
+    @PatchMapping(value = "/profile/me", headers = "X-AUTH-TOKEN")
+    public SingleResult<UserProfileDto> updateMyProfile(String nickName, @RequestPart MultipartFile file, @AuthenticationPrincipal User user) {
+        UserProfileUpdateParam userProfileUpdateParam = new UserProfileUpdateParam(nickName, file);
+        return responseService.getSingleResult(userService.updateMyProfile(userProfileUpdateParam, user));
     }
 }

@@ -24,11 +24,9 @@ public class AuthController {
     private final AuthService authService;
     private final ResponseService responseService;
 
-    @ApiOperation(
-            value = "액세스, 리프레시 토큰 재발급",
-            notes = "엑세스 토큰 만료시 회원 검증 후 리프레쉬 토큰을 검증해서 액세스 토큰과 리프레시 토큰을 재발급합니다.")
-    @PreAuthorize("isAuthenticated()")
-    @PostMapping("/reissue")
+    @ApiOperation(value = "액세스, 리프레시 토큰 재발급", notes = "엑세스 토큰 만료시 회원 검증 후 리프레쉬 토큰을 검증해서 액세스 토큰과 리프레시 토큰을 재발급합니다.")
+    @PreAuthorize("permitAll()")
+    @PostMapping(value = "/reissue")
     public SingleResult<TokenDto> reissue(
             @ApiParam(value = "토큰 재발급 요청 DTO", required = true)
             @RequestBody TokenRequestDto tokenRequestDto) {
