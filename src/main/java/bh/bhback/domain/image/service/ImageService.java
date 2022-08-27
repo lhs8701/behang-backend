@@ -24,6 +24,8 @@ public class ImageService {
 
     @Value("${upload.path.post}")
     private String UploadPathPost;
+    @Value("${upload.path.profile}")
+    private String UploadPathProfile;
     private final ImageJpaRepository imageJpaRepository;
 
     public ImageDto uploadImage(MultipartFile file, String uploadPath) {
@@ -51,6 +53,10 @@ public class ImageService {
 
     public ImageDto uploadPostImage(MultipartFile file) {
         return uploadImage(file, UploadPathPost);
+    }
+
+    public ImageDto uploadProfileImage(MultipartFile file){
+        return uploadImage(file, UploadPathProfile);
     }
 
     public String makeFileName(String fileOriName) {
