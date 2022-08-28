@@ -44,16 +44,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .authorizeRequests()
             .mvcMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .antMatchers(HttpMethod.GET, "/exception/**").permitAll()
-<<<<<<< HEAD
-            //.anyRequest().hasRole("USER")
-=======
-
-//            .antMatchers(HttpMethod.POST, "/signup", "/login",
-//                    "/reissue", "/social/**").permitAll()
-//            .antMatchers(HttpMethod.GET, "/oauth/kakao/**").permitAll()
-//            .anyRequest().hasRole("USER")
->>>>>>> 0d190890617eb25c0eb52cfc8e7a3a9ba2217db3
-
             .and()
             .exceptionHandling()
             .authenticationEntryPoint(customAuthenticationEntryPoint)
