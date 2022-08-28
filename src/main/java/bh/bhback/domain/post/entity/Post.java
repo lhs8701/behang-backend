@@ -3,15 +3,20 @@ package bh.bhback.domain.post.entity;
 
 import bh.bhback.domain.image.entity.Image;
 import bh.bhback.domain.place.entity.Place;
+import bh.bhback.domain.report.entity.Report;
 import bh.bhback.domain.user.entity.User;
 import bh.bhback.global.common.jpa.BaseTimeEntity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 public class Post extends BaseTimeEntity {
 
@@ -35,6 +40,10 @@ public class Post extends BaseTimeEntity {
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name="content_id")
     private Place place;
+
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Report> reportList = new ArrayList<>();
 
     public void changeUser(User user){ //연관관계 편의 메서드
         this.user = user;

@@ -1,6 +1,7 @@
 package bh.bhback.domain.user.entity;
 
 import bh.bhback.domain.post.entity.Post;
+import bh.bhback.domain.report.entity.Report;
 import bh.bhback.global.common.jpa.BaseTimeEntity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -44,6 +45,10 @@ public class User extends BaseTimeEntity implements UserDetails {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @JsonIgnoreProperties({"user"}) //user table에 칼럼 생성 방지
     private List<Post> postList;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Report> reportList = new ArrayList<>();
 
     @Column(length = 100) // provider 추가 (kakao, naver, google etc.)
     private String provider;
