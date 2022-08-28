@@ -32,7 +32,7 @@ public class Post extends BaseTimeEntity {
     private User user;
 
     //@Embedded
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name="content_id")
     private Place place;
 

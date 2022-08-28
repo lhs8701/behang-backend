@@ -70,7 +70,8 @@ public class PostService {
 
     @Transactional // 최신순 정렬(임시)
     public List<FeedResponseDto> getFeed(Pageable pageable) {
-        List<Post> postList = postJpaRepository.findAllByOrderByCreatedDateDesc(pageable);
+        List<Post> postList = postJpaRepository.findAllByOrderByCreatedDateDesc(pageable)
+                .orElseThrow(CPostNotFoundException::new);
         return postList.stream()
                 .map(FeedResponseDto::new)
                 .collect(Collectors.toList());
@@ -79,7 +80,8 @@ public class PostService {
     @Transactional // 최신순 정렬(임시)
     public List<FeedResponseDto> getUserFeed(Long userId, Pageable pageable) {
         User user = userJpaRepository.findById(userId).orElseThrow(CUserNotFoundException::new);
-        List<Post> postList = postJpaRepository.findAllByUserOrderByCreatedDateDesc(user, pageable);
+        List<Post> postList = postJpaRepository.findAllByUserOrderByCreatedDateDesc(user, pageable)
+                .orElseThrow(CPostNotFoundException::new);
         return postList.stream()
                 .map(FeedResponseDto::new)
                 .collect(Collectors.toList());
@@ -88,7 +90,8 @@ public class PostService {
     @Transactional // 최신순 정렬(임시)
     public List<FeedResponseDto> getUserFeed(User user, Pageable pageable) {
         userJpaRepository.findById(user.getUserId()).orElseThrow(CUserNotFoundException::new);
-        List<Post> postList = postJpaRepository.findAllByUserOrderByCreatedDateDesc(user, pageable);
+        List<Post> postList = postJpaRepository.findAllByUserOrderByCreatedDateDesc(user, pageable)
+                .orElseThrow(CPostNotFoundException::new);
         return postList.stream()
                 .map(FeedResponseDto::new)
                 .collect(Collectors.toList());

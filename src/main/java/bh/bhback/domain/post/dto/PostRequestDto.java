@@ -15,9 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 @ToString
 @Schema(description = "포스트 등록 DTO")
 public class PostRequestDto {
-    @Schema(description = "태그")
     private Tag tag;
-    @Schema(description = "장소 정보")
     private Place place;
 
     public Post toEntity(User user, Image image) {
