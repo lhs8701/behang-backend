@@ -25,7 +25,7 @@ public class ReportController {
      * @return 신고 이미 했는지 여부
      */
     @PostMapping("/{postId}")
-    public ResponseEntity<Void> reportPost(@PathVariable Long postId, @RequestBody User user) {
+    public ResponseEntity<Void> reportPost(@PathVariable Long postId, @RequestBody User user) {ddddddd
         //현재 유저를 어떻게 받아야 할 지 몰라서 이부분 받아서 로직에 포함해야함
 
         try {
