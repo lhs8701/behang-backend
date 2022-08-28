@@ -46,7 +46,7 @@ public class KakaoController {
     public CommonResult signupByKakao(
             @ApiParam(value = "소셜 회원가입 dto", required = true)
             @RequestBody UserSocialSignupRequestDto socialSignupRequestDto) {
-
-        return responseService.getSingleResult(kakaoSignService.signupByKakao(socialSignupRequestDto));
+        kakaoSignService.signupByKakao(socialSignupRequestDto);
+        return responseService.getSuccessResult();
     }
 }

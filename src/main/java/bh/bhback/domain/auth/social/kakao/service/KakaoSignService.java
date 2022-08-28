@@ -35,7 +35,8 @@ public class KakaoSignService {
     public TokenDto loginByKakao(SocialLoginRequestDto socialLoginRequestDto) {
 
         KakaoProfile kakaoProfile = kakaoApiService.getKakaoProfile(socialLoginRequestDto.getAccessToken());
-        if (kakaoProfile == null) throw new CUserNotFoundException();
+        if (kakaoProfile == null)
+            throw new CUserNotFoundException();
 
         User user = userJpaRepository.findBySocialIdAndProvider(String.valueOf(kakaoProfile.getId()), "kakao")
                 .orElseThrow(CUserNotFoundException::new);
@@ -49,20 +50,18 @@ public class KakaoSignService {
         return tokenDto;
     }
 
-    public Long signupByKakao(UserSocialSignupRequestDto socialSignupRequestDto) {
+    public void signupByKakao(UserSocialSignupRequestDto socialSignupRequestDto) {
 
         // 카카오에게서 사용자 정보 요청
         KakaoProfile kakaoProfile =
                 kakaoApiService.getKakaoProfile(socialSignupRequestDto.getAccessToken());
         if (kakaoProfile == null) throw new CUserNotFoundException();
 
-        Long userId = authService.socialSignup(UserSignupRequestDto.builder()
+        authService.socialSignup(UserSignupRequestDto.builder()
                 .socialId(String.valueOf(kakaoProfile.getId()))
                 .nickName(kakaoProfile.getKakao_account().getProfile().getNickname())
                 .profileImage(kakaoProfile.getKakao_account().getProfile().getProfile_image_url())
                 .provider("kakao")
                 .build());
-
-        return userId;
     }
 }
