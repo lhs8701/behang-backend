@@ -1,5 +1,6 @@
-package bh.bhback.domain.post.entity;
+package bh.bhback.domain.place.entity;
 
+import bh.bhback.domain.post.entity.Post;
 import bh.bhback.global.common.jpa.BaseTimeEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
@@ -17,7 +18,6 @@ import java.util.List;
 public class Place {
 
     @Id
-    //@Column(name="content_id")
     private Long contentId;
 
     private String name;

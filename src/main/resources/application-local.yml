@@ -13,6 +13,11 @@ spring:
         hbm2ddl:
           auto: update
     show-sql: true
+  datasource:
+    url: jdbc:mysql://localhost:3306/test
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   redis:
     host: localhost

@@ -1,5 +1,6 @@
 package bh.bhback.domain.post.controller;
 
+import bh.bhback.domain.place.dto.CurPlaceDto;
 import bh.bhback.global.common.response.service.ResponseService;
 import bh.bhback.global.common.response.dto.CommonResult;
 import bh.bhback.global.common.response.dto.ListResult;
@@ -39,7 +40,6 @@ public class PostController {
         return responseService.getSingleResult(postService.getPost(postId));
     }
 
-
     //피드 조회(페이징 적용 - 업로드 순)
     @ApiOperation(value = "피드 조회(업로드 순 정렬)", notes = "메인 피드 조회")
     @PreAuthorize("permitAll()")
@@ -48,7 +48,22 @@ public class PostController {
         return responseService.getListResult(postService.getFeed(pageable));
     }
 
-    //유저 피드 조회(페이징 적용 - 업로드 순)
+    @ApiOperation(value="게시물 조회(거리 순 정렬)", notes = "게시물 조회")
+    @PostMapping("/feed/sort=Distance")
+    public ListResult<FeedResponseDto> getFeedOrderByDistance(@PageableDefault(size=10) Pageable pageable, @RequestBody CurPlaceDto curPlaceDto)
+    {
+        return responseService.getListResult(postService.getFeedOrderByDistance(pageable, curPlaceDto));
+    }
+
+    //유저가 올린 게시물 리스트 조회
+    @ApiImplicitParams({
+            @ApiImplicitParam(
+                    name = "X-AUTH-TOKEN",
+                    value = "AccessToken",
+                    required = true, dataType="String", paramType = "header"
+            )
+    })
+
     @ApiOperation(value = "유저 피드 조회", notes = "해당 유저의 피드 조회")
     @PreAuthorize("permitAll()")
     @GetMapping("/feed/{userId}")
