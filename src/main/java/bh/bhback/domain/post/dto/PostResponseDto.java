@@ -1,11 +1,9 @@
 package bh.bhback.domain.post.dto;
 
-import bh.bhback.domain.image.entity.Image;
-import bh.bhback.domain.post.entity.Place;
+import bh.bhback.domain.place.entity.Place;
 import bh.bhback.domain.post.entity.Post;
 import bh.bhback.domain.post.entity.Tag;
 import bh.bhback.domain.user.dto.UserProfileDto;
-import bh.bhback.domain.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

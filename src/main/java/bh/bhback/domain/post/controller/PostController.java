@@ -1,5 +1,6 @@
 package bh.bhback.domain.post.controller;
 
+import bh.bhback.domain.place.dto.CurPlaceDto;
 import bh.bhback.global.common.response.service.ResponseService;
 import bh.bhback.global.common.response.dto.CommonResult;
 import bh.bhback.global.common.response.dto.ListResult;
@@ -60,6 +61,13 @@ public class PostController {
     public ListResult<FeedResponseDto> getFeed(@PageableDefault(size=10) Pageable pageable)
     {
         return responseService.getListResult(postService.getFeed(pageable));
+    }
+
+    @ApiOperation(value="게시물 조회(거리 순 정렬)", notes = "게시물 조회")
+    @PostMapping("/feed/sort=Distance")
+    public ListResult<FeedResponseDto> getFeedOrderByDistance(@PageableDefault(size=10) Pageable pageable, @RequestBody CurPlaceDto curPlaceDto)
+    {
+        return responseService.getListResult(postService.getFeedOrderByDistance(pageable, curPlaceDto));
     }
 
     //유저가 올린 게시물 리스트 조회
