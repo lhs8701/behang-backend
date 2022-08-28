@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CurPlaceDto {
-    Long curX;
-    Long curY;
+    Double curX;
+    Double curY;
 }

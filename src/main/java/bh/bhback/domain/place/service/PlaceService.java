@@ -4,7 +4,6 @@ import bh.bhback.domain.place.entity.Place;
 import bh.bhback.domain.place.repository.PlaceRepository;
 import bh.bhback.domain.post.dto.PostResponseDto;
 import bh.bhback.domain.post.entity.Post;
-import bh.bhback.global.error.advice.exception.PostNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,6 @@ public class PlaceService {
     private final PlaceRepository placeRepository;
 
     /**
-     *
      * @param contentId(장소 고유 코드)
      * @return 같은 장소에 대한 Post들
      */
@@ -34,22 +32,14 @@ public class PlaceService {
 
         List<PostResponseDto> postResponseDtoList = new ArrayList<>();
 
-        for(int i=0; i< postList.size(); i++) {
+        for (int i = 0; i < postList.size(); i++) {
             Post post = postList.get(i);
             String fileUrl = post.getImage().getFileUrl();
             File file = new File(fileUrl);
 
             //PostResponseDto 만들기
-            PostResponseDto postResponseDto;
+            PostResponseDto postResponseDto = new PostResponseDto(post);
 
-            try {
-                postResponseDto = new PostResponseDto(post, FileCopyUtils.copyToByteArray(file));
-
-            } catch (Exception e) {
-                log.info("image copyToByteArray error" + e.getMessage());
-                postResponseDto = new PostResponseDto(post, null);
-            }
-            
             //List에 만든 Dto 넣기
             postResponseDtoList.add(postResponseDto);
         }
@@ -57,11 +47,11 @@ public class PlaceService {
         return postResponseDtoList;
     }
 
-    private static double deg2rad(double deg){
-        return (deg * Math.PI/180.0);
+    private static Double deg2rad(double deg) {
+        return (deg * Math.PI / 180.0);
     }
 
-    private static double rad2deg(double rad){
+    private static Double rad2deg(double rad) {
         return (rad * 180 / Math.PI);
     }
 
@@ -72,14 +62,14 @@ public class PlaceService {
      * @param y2 목적지 경도
      * @return 현재 위치와 목적지 사이의 거리 (m)
      */
-    public static double getDistance (double x1, double y1, double x2, double y2) {
+    public static Double getDistance(Double x1, Double y1, Double x2, Double y2) {
 
-        double theta = y1 - y2;
-        double dist = Math.sin(deg2rad(x1))* Math.sin(deg2rad(x2)) + Math.cos(deg2rad(x1))*Math.cos(deg2rad(x2))*Math.cos(deg2rad(theta));
+        Double theta = y1 - y2;
+        Double dist = Math.sin(deg2rad(x1)) * Math.sin(deg2rad(x2)) + Math.cos(deg2rad(x1)) * Math.cos(deg2rad(x2)) * Math.cos(deg2rad(theta));
 
         dist = Math.acos(dist);
         dist = rad2deg(dist);
-        dist = dist * 60*1.1515*1609.344;
+        dist = dist * 60 * 1.1515 * 1609.344;
 
         return dist; //단위 meter
     }

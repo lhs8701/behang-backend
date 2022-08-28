@@ -92,29 +92,20 @@ public class PostService {
      */
     @Transactional
     public List<FeedResponseDto> getFeedOrderByDistance(Pageable pageable, CurPlaceDto curPlaceDto) {
-        List<Post> postList = postJpaRepository.findAllByOrderByCreatedDateDesc(pageable);
-        List<FeedResponseDto> feedList = new ArrayList<>();
+        List<Post> postList = postJpaRepository.findAllByOrderByCreatedDateDesc(pageable)
+                .orElseThrow(CPostNotFoundException::new);
+        List<FeedResponseDto> feedList = new ArrayList<FeedResponseDto>();
 
-        double curX = curPlaceDto.getCurX();
-        double curY = curPlaceDto.getCurY();
+        Double curX = curPlaceDto.getCurX();
+        Double curY = curPlaceDto.getCurY();
 
-        //feedList에 옮겨 담기
-        try {
-            for (Post post : postList) {
-                //상대 거리 구하기
-                double MapX = post.getPlace().getMapX();
-                double MapY = post.getPlace().getMapY();
+        for(Post post:postList){
+            //상대 거리 구하기
+            Double MapX = post.getPlace().getMapX();
+            Double MapY = post.getPlace().getMapY();
+            Double distance = placeService.getDistance(curX, curY, MapX, MapY);
 
-                double distance = placeService.getDistance(curX, curY, MapX, MapY);
-                
-                String fileUrl = post.getImage().getFileUrl();
-                File file = new File(fileUrl);
-                FeedResponseDto feedResponseDto = new FeedResponseDto(post, FileCopyUtils.copyToByteArray(file));
-                feedList.add(feedResponseDto);
-            }
-        } catch (Exception e) {
-            log.info("image copyToByteArray error" + e.getMessage());
-            return feedList;
+            feedList.add(new FeedResponseDto(post, distance));
         }
 
         //정렬 알고리즘 구현
