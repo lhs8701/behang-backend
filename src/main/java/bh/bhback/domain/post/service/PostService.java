@@ -3,6 +3,8 @@ package bh.bhback.domain.post.service;
 import bh.bhback.domain.image.dto.ImageDto;
 import bh.bhback.domain.image.service.ImageService;
 import bh.bhback.domain.place.dto.CurPlaceDto;
+import bh.bhback.domain.place.entity.Place;
+import bh.bhback.domain.place.repository.PlaceRepository;
 import bh.bhback.domain.place.service.PlaceService;
 import bh.bhback.domain.post.dto.FeedResponseDto;
 import bh.bhback.domain.post.dto.PostRequestDto;
@@ -22,12 +24,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import java.io.File;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -37,14 +39,39 @@ public class PostService {
 
     private final PostJpaRepository postJpaRepository;
     private final UserJpaRepository userJpaRepository;
+    private final PlaceRepository placeRepository;
+
     private final ImageService imageService;
     private final PlaceService placeService;
 
     @Transactional
-    public Long create(PostRequestDto postRequestDto, MultipartFile file, User user) {
+    public void create(PostRequestDto postRequestDto, MultipartFile file, User user) {
+        Long contentId = postRequestDto.getPlace().getContentId();
+
+        Optional<Place> placeOptional = placeRepository.findPlaceByContentId(contentId);
+
         ImageDto imageDto = imageService.uploadPostImage(file);
-        Post post = postJpaRepository.save(postRequestDto.toEntity(user, imageDto.toEntity()));
-        return post.getId();
+
+        //이미 해당 Place정보가 DB에 있는경우
+        if(placeOptional.isPresent()) {
+            //Post post = postRequestDto.toEntity(user, imageDto.toEntity());
+            
+            Post post = postRequestDto.toEntityWithoutPlace(user, imageDto.toEntity());
+            //기존에 있던 place에 post 추가하기
+            Place place = placeOptional.get();
+            
+            //기존에 post에 contentId가 저장되지 않던 로직을 일단 set method로 해결
+            post.setPlace(place);
+
+            List<Post> postList = place.getPostList();
+
+            postList.add(post);
+
+        }else { //해당 정보가 DB에 없는 경우 => 새로 저장 
+            Post post = postJpaRepository.save(postRequestDto.toEntity(user, imageDto.toEntity()));
+
+        }
+
     }
 
     @Transactional
@@ -96,16 +123,17 @@ public class PostService {
                 .orElseThrow(CPostNotFoundException::new);
         List<FeedResponseDto> feedList = new ArrayList<FeedResponseDto>();
 
-        Double curX = curPlaceDto.getCurX();
-        Double curY = curPlaceDto.getCurY();
+
+        double curX = curPlaceDto.getCurX();
+        double curY = curPlaceDto.getCurY();
 
         for(Post post:postList){
             //상대 거리 구하기
-            Double MapX = post.getPlace().getMapX();
-            Double MapY = post.getPlace().getMapY();
-            Double distance = placeService.getDistance(curX, curY, MapX, MapY);
+            double MapX = post.getPlace().getMapX();
+            double MapY = post.getPlace().getMapY();
+            double distance = placeService.getDistance(curX, curY, MapX, MapY);
+            feedList.add(new FeedResponseDto(post));
 
-            feedList.add(new FeedResponseDto(post, distance));
         }
 
         //정렬 알고리즘 구현
