@@ -2,6 +2,7 @@ package bh.bhback.domain.place.entity;
 
 import bh.bhback.domain.post.entity.Post;
 import bh.bhback.global.common.jpa.BaseTimeEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -14,7 +15,7 @@ import java.util.List;
 @ToString
 @Entity
 @Builder
-public class Place extends BaseTimeEntity {
+public class Place {
 
     @Id
     private Long contentId;
@@ -26,6 +27,7 @@ public class Place extends BaseTimeEntity {
     private Double mapY;
 
     @Builder.Default
-    @OneToMany(mappedBy = "place", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "place", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JsonIgnore
     private List<Post> postList = new ArrayList<>();
 }

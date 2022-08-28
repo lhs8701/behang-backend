@@ -1,6 +1,5 @@
 
 spring:
-  profiles: local
   url:
     base: http://localhost:8080
   jpa:
@@ -20,12 +19,20 @@ spring:
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  redis:
+    host: localhost
+    port: 6379
+
 logging.level:
   org.hibernate.SQL: debug # logger를 통해 하이버네이트 실행 SQL을 남긴다.
   org.hibernate.type: trace # SQL 실행 파라미터를 로그로 남긴다.
 
+
+
 upload:
-  path: E:\Spring\bh-back\src\imageStorage
+  path:
+    post: E:\Spring\bh-back\src\images\post
+    profile: E:\Spring\bh-back\src\images\profile
 
 
 #  h2 설정

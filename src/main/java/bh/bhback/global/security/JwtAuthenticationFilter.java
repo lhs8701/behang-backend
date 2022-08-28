@@ -1,5 +1,7 @@
 package bh.bhback.global.security;
 
+import bh.bhback.global.error.advice.exception.CLogoutException;
+import bh.bhback.global.redis.LogoutAccessTokenRedisRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -21,6 +23,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends GenericFilterBean {
 
     private final JwtProvider jwtProvider;
+    private final LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository;
 
 
     // request 로 들어오는 Jwt 의 유효성을 검증 - JwtProvider.validationToken()을 필터로서 FilterChain 에 추가
@@ -30,14 +33,14 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
                          FilterChain filterChain) throws IOException, ServletException {
 
         // request 에서 token 을 취한다.
-        String token = jwtProvider.resolveToken((HttpServletRequest) request);
+        String accessToken = jwtProvider.resolveToken((HttpServletRequest) request);
 
         // 검증
         log.info("[Verifying token]");
         log.info(((HttpServletRequest) request).getRequestURL().toString());
 
-        if (token != null && jwtProvider.validationToken(token, (HttpServletRequest) request)) {
-            Authentication authentication = jwtProvider.getAuthentication(token);
+        if (accessToken != null && jwtProvider.validationToken(accessToken, (HttpServletRequest) request)) {
+            Authentication authentication = jwtProvider.getAuthentication(accessToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
         //다음 차례 필터 클래스 객체의 doFilter() 메소드를 호출시키는 기능

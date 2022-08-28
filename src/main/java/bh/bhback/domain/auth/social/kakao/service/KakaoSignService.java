@@ -7,6 +7,9 @@ import bh.bhback.domain.auth.service.AuthService;
 import bh.bhback.domain.auth.social.kakao.dto.KakaoProfile;
 import bh.bhback.domain.user.entity.User;
 import bh.bhback.domain.user.repository.UserJpaRepository;
+import bh.bhback.global.common.jwt.entity.JwtExpiration;
+import bh.bhback.global.redis.RefreshToken2;
+import bh.bhback.global.redis.RefreshTokenRedisRepository;
 import bh.bhback.global.security.JwtProvider;
 import bh.bhback.global.common.jwt.entity.RefreshToken;
 import bh.bhback.global.common.jwt.repository.RefreshTokenJpaRepo;
@@ -26,6 +29,7 @@ public class KakaoSignService {
     private final RefreshTokenJpaRepo refreshTokenJpaRepo;
     private final KakaoApiService kakaoApiService;
     private final AuthService authService;
+    private final RefreshTokenRedisRepository refreshTokenRedisRepository;
 
 
     public TokenDto loginByKakao(SocialLoginRequestDto socialLoginRequestDto) {
@@ -35,18 +39,13 @@ public class KakaoSignService {
 
         User user = userJpaRepository.findBySocialIdAndProvider(String.valueOf(kakaoProfile.getId()), "kakao")
                 .orElseThrow(CUserNotFoundException::new);
-        TokenDto tokenDto = jwtProvider.createTokenDto(user.getUserId(), user.getRoles());
-        RefreshToken refreshToken = RefreshToken.builder()
-                .userKey(user.getUserId())
-                .token(tokenDto.getRefreshToken())
-                .build();
-        try{
-            refreshTokenJpaRepo.deleteByUserKey(refreshToken.getUserKey());
-        }catch (IllegalArgumentException e){
-            log.info("해당 칼럼이 없음");
-        }
-        refreshTokenJpaRepo.flush();
-        refreshTokenJpaRepo.save(refreshToken);
+        String accessToken = jwtProvider.generateAccessToken(user.getUserId(), user.getRoles());
+        String refreshToken = jwtProvider.generateRefreshToken(user.getUserId(), user.getRoles());
+        TokenDto tokenDto = jwtProvider.createTokenDto(accessToken, refreshToken);
+
+        //redis
+        refreshTokenRedisRepository.save(new RefreshToken2(user.getUserId(), tokenDto.getRefreshToken()));
+
         return tokenDto;
     }
 

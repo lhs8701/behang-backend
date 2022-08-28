@@ -6,11 +6,11 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class WrongApproachException extends RuntimeException{
-    ErrorCode errorCode;
+public class CPostNotFoundException extends RuntimeException {
+    private final ErrorCode errorCode;
 
-    public WrongApproachException() {
+    public CPostNotFoundException(){
         super();
-        errorCode = ErrorCode.WRONG_APPROACH;
+        errorCode = ErrorCode.POST_NOT_FOUND;
     }
 }

@@ -3,7 +3,7 @@ package bh.bhback.global.error.advice;
 import bh.bhback.global.error.advice.exception.CCommunicationException;
 import bh.bhback.global.error.advice.exception.CSocialAgreementException;
 import bh.bhback.global.common.response.service.ResponseService;
-import bh.bhback.global.error.advice.exception.WrongFileTypeException;
+import bh.bhback.global.error.advice.exception.CWrongFileTypeException;
 import bh.bhback.global.common.response.dto.CommonResult;
 import bh.bhback.global.error.ErrorCode;
 
@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -66,11 +65,11 @@ public class ExceptionAdvice {
     /**
      * 권한이 없는 리소스를 요청한 경우 발생 시키는 예외
      */
-    @ExceptionHandler(AccessDeniedException.class)
+    @ExceptionHandler(CAccessDeniedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    protected CommonResult accessDeniedException(HttpServletRequest request, AccessDeniedException e) {
+    protected CommonResult accessDeniedException(HttpServletRequest request, CAccessDeniedException e) {
         return responseService.getFailResult
-                (ErrorCode.ACCESS_DENIED.getCode(), ErrorCode.ACCESS_DENIED.getDescription());
+                (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
     }
 
     /**
@@ -116,9 +115,9 @@ public class ExceptionAdvice {
     /**
      * 잘못된 접근
      */
-    @ExceptionHandler(WrongApproachException.class)
+    @ExceptionHandler(CWrongApproachException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected CommonResult wrongApproachException(HttpServletRequest request, WrongApproachException e) {
+    protected CommonResult wrongApproachException(HttpServletRequest request, CWrongApproachException e) {
         return responseService.getFailResult
                 (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
     }
@@ -126,9 +125,9 @@ public class ExceptionAdvice {
     /**
      * 게시물을 찾을 수 없는 경우
      */
-    @ExceptionHandler(PostNotFoundException.class)
+    @ExceptionHandler(CPostNotFoundException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected CommonResult postNotFoundException(HttpServletRequest request, PostNotFoundException e) {
+    protected CommonResult postNotFoundException(HttpServletRequest request, CPostNotFoundException e) {
         return responseService.getFailResult
                 (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
     }
@@ -136,9 +135,9 @@ public class ExceptionAdvice {
     /**
      * 파일이 없거나, 잘못된 파일 형식일 경우
      */
-    @ExceptionHandler(WrongFileTypeException.class)
+    @ExceptionHandler(CWrongFileTypeException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected CommonResult wrongFileTypeException(HttpServletRequest request, WrongFileTypeException e) {
+    protected CommonResult wrongFileTypeException(HttpServletRequest request, CWrongFileTypeException e) {
         return responseService.getFailResult
                 (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
     }
@@ -153,6 +152,15 @@ public class ExceptionAdvice {
                 (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
     }
 
+    /**
+     * 로그아웃된 회원의 토큰으로 접근
+     */
+    @ExceptionHandler(CLogoutException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    protected CommonResult logoutException(HttpServletRequest request, CLogoutException e) {
+        return responseService.getFailResult
+                (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
+    }
 }
 
 

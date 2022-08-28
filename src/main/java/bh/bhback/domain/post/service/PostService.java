@@ -12,17 +12,14 @@ import bh.bhback.domain.post.entity.Post;
 import bh.bhback.domain.post.repository.PostJpaRepository;
 import bh.bhback.domain.user.entity.User;
 import bh.bhback.domain.user.repository.UserJpaRepository;
+import bh.bhback.global.error.advice.exception.CAccessDeniedException;
 import bh.bhback.global.error.advice.exception.CUserNotFoundException;
-import bh.bhback.global.error.advice.exception.PostNotFoundException;
+import bh.bhback.global.error.advice.exception.CPostNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -31,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -44,58 +42,47 @@ public class PostService {
 
     @Transactional
     public Long create(PostRequestDto postRequestDto, MultipartFile file, User user) {
-        String fileOriName = file.getOriginalFilename();
-        String fileName = imageService.makeFileName(fileOriName);
-        imageService.uploadFile(file, fileName);
-        String fileUrl = imageService.makeFileUrl(fileName);
-        ImageDto imageDto = new ImageDto(fileName, fileOriName, fileUrl);
+        ImageDto imageDto = imageService.uploadPostImage(file);
         Post post = postJpaRepository.save(postRequestDto.toEntity(user, imageDto.toEntity()));
         return post.getId();
     }
 
     @Transactional
-    public Long update(Long postId, PostUpdateParam postUpdateParam) {
+    public Long update(Long postId, PostUpdateParam postUpdateParam, User user) {
         Post post = postJpaRepository.findById(postId)
-                .orElseThrow(PostNotFoundException::new);
+                .orElseThrow(CPostNotFoundException::new);
+        if (!post.getUser().getUserId().equals(user.getUserId())){
+            throw new CAccessDeniedException();
+        }
         post.setTag(postUpdateParam.getTag());
         post.setPlace(postUpdateParam.getPlace());
         return postId;
     }
 
     @Transactional
-    public void delete(Long postId) {
+    public void delete(Long postId, User user) {
+        Post post = postJpaRepository.findById(postId)
+                .orElseThrow(CPostNotFoundException::new);
+        if (!post.getUser().getUserId().equals(user.getUserId())){
+            throw new CAccessDeniedException();
+        }
         postJpaRepository.deleteById(postId);
     }
 
     @Transactional
     public PostResponseDto getPost(Long postId) {
         Post post = postJpaRepository.findById(postId)
-                .orElseThrow(PostNotFoundException::new);
-        String fileUrl = post.getImage().getFileUrl();
-        File file = new File(fileUrl);
-        try {
-            return new PostResponseDto(post, FileCopyUtils.copyToByteArray(file));
-        } catch (Exception e) {
-            log.info("image copyToByteArray error" + e.getMessage());
-            return new PostResponseDto(post, null);
-        }
+                .orElseThrow(CPostNotFoundException::new);
+        return new PostResponseDto(post);
     }
+
     @Transactional // 최신순 정렬(임시)
     public List<FeedResponseDto> getFeed(Pageable pageable) {
-        List<Post> postList = postJpaRepository.findAllByOrderByCreatedDateDesc(pageable);
-        List<FeedResponseDto> feedList = new ArrayList<>();
-        try {
-            for (Post post : postList) {
-                String fileUrl = post.getImage().getFileUrl();
-                File file = new File(fileUrl);
-                FeedResponseDto feedResponseDto = new FeedResponseDto(post, FileCopyUtils.copyToByteArray(file));
-                feedList.add(feedResponseDto);
-            }
-        } catch (Exception e) {
-            log.info("image copyToByteArray error" + e.getMessage());
-            return feedList;
-        }
-        return feedList;
+        List<Post> postList = postJpaRepository.findAllByOrderByCreatedDateDesc(pageable)
+                .orElseThrow(CPostNotFoundException::new);
+        return postList.stream()
+                .map(FeedResponseDto::new)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -147,45 +134,21 @@ public class PostService {
 
     @Transactional // 최신순 정렬(임시)
     public List<FeedResponseDto> getUserFeed(Long userId, Pageable pageable) {
-        User user = userJpaRepository.findById(userId)
-                .orElseThrow(CUserNotFoundException::new);
-//      List<Post> postList = user.getPostList();
-        List<Post> postList = postJpaRepository.findAllByUserOrderByCreatedDateDesc(user, pageable);
-        List<FeedResponseDto> feedList = new ArrayList<>();
-
-        try {
-            for (Post post : postList) {
-                String fileUrl = post.getImage().getFileUrl();
-                File file = new File(fileUrl);
-                FeedResponseDto feedResponseDto = new FeedResponseDto(post, FileCopyUtils.copyToByteArray(file));
-                feedList.add(feedResponseDto);
-            }
-        } catch (Exception e) {
-            log.info("image copyToByteArray error" + e.getMessage());
-            return feedList;
-        }
-        return feedList;
+        User user = userJpaRepository.findById(userId).orElseThrow(CUserNotFoundException::new);
+        List<Post> postList = postJpaRepository.findAllByUserOrderByCreatedDateDesc(user, pageable)
+                .orElseThrow(CPostNotFoundException::new);
+        return postList.stream()
+                .map(FeedResponseDto::new)
+                .collect(Collectors.toList());
     }
 
     @Transactional // 최신순 정렬(임시)
     public List<FeedResponseDto> getUserFeed(User user, Pageable pageable) {
         userJpaRepository.findById(user.getUserId()).orElseThrow(CUserNotFoundException::new);
-
-//      List<Post> postList = user.getPostList();
-        List<Post> postList = postJpaRepository.findAllByUserOrderByCreatedDateDesc(user, pageable);
-
-        List<FeedResponseDto> feedList = new ArrayList<>();
-        try {
-            for (Post post : postList) {
-                String fileUrl = post.getImage().getFileUrl();
-                File file = new File(fileUrl);
-                FeedResponseDto feedResponseDto = new FeedResponseDto(post, FileCopyUtils.copyToByteArray(file));
-                feedList.add(feedResponseDto);
-            }
-        } catch (Exception e) {
-            log.info("image copyToByteArray error" + e.getMessage());
-            return feedList;
-        }
-        return feedList;
+        List<Post> postList = postJpaRepository.findAllByUserOrderByCreatedDateDesc(user, pageable)
+                .orElseThrow(CPostNotFoundException::new);
+        return postList.stream()
+                .map(FeedResponseDto::new)
+                .collect(Collectors.toList());
     }
 }

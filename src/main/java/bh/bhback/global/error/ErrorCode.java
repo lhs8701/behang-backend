@@ -22,6 +22,7 @@ public enum ErrorCode {
     UNSUPPORTED_TOKEN(-1012, "지원하지 않는 토큰입니다."),
     WRONG_TOKEN(-1013, "잘못된 토큰입니다."),
     REFRESH_TOKEN_EXPIRED(-1014, "리프레쉬 토큰이 만료되었습니다. 로그인을 다시 해주세요."),
+    LOGOUT_ERROR(-1015, "이미 로그아웃된 회원입니다."),
 
     WRONG_APPROACH(-9998, "잘못된 접근입니다."),
     INTERNAL_SERVER_ERROR(-9999, "서버 에러입니다.");

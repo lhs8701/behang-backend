@@ -6,11 +6,11 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class PostNotFoundException extends RuntimeException {
+public class CLogoutException extends RuntimeException{
     private final ErrorCode errorCode;
 
-    public PostNotFoundException(){
+    public CLogoutException(){
         super();
-        errorCode = ErrorCode.POST_NOT_FOUND;
+        errorCode = ErrorCode.LOGOUT_ERROR;
     }
 }

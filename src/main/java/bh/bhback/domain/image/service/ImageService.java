@@ -1,8 +1,6 @@
 package bh.bhback.domain.image.service;
 
 import bh.bhback.domain.image.dto.ImageDto;
-import bh.bhback.domain.image.entity.Image;
-import bh.bhback.global.error.advice.exception.WrongFileTypeException;
 import bh.bhback.domain.image.repository.ImageJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -23,53 +22,59 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ImageService {
 
-    @Value("${upload.path}")
-    private String uploadPath;
-
+    @Value("${upload.path.post}")
+    private String UploadPathPost;
+    @Value("${upload.path.profile}")
+    private String UploadPathProfile;
     private final ImageJpaRepository imageJpaRepository;
 
-    public void uploadFile(MultipartFile file, String fileName) {
-        // 이미지가 없거나, 잘못된 형식일 경우
-        if (file.isEmpty() || !file.getContentType().startsWith("image")) {
-            throw new WrongFileTypeException();
-        }
+    public ImageDto uploadImage(MultipartFile file, String uploadPath) {
+//        이미지가 없거나, 잘못된 형식일 경우
+//        if (file.isEmpty() || !file.getContentType().startsWith("image")) {
+//            throw new WrongFileTypeException();
+//        }
 //      String fileName = originalFileName.substring(originalFileName.lastIndexOf("\\") + 1);
 
-        //전체 저장 경로
-        String fileUrl = makeFileUrl(fileName);
+        String fileOriName = Optional.ofNullable(file.getOriginalFilename()).orElse("empty");
+        String fileName = makeFileName(fileOriName);
+        String fileUrl = makeFileUrl(fileName, uploadPath);
         Path savePath = Paths.get(fileUrl);
+
         try {
             file.transferTo(savePath);
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
+
+        ImageDto imageDto = new ImageDto(fileName, fileOriName, fileUrl);
+        imageJpaRepository.save(imageDto.toEntity());
+        return imageDto;
+    }
+
+    public ImageDto uploadPostImage(MultipartFile file) {
+        return uploadImage(file, UploadPathPost);
+    }
+
+    public ImageDto uploadProfileImage(MultipartFile file){
+        return uploadImage(file, UploadPathProfile);
     }
 
     public String makeFileName(String fileOriName) {
         int idx = fileOriName.lastIndexOf(".");
         String ext = fileOriName.substring(idx);
         String uuid = UUID.randomUUID().toString();
-        String fileName = uuid + ext;
-        return fileName;
+        return uuid + ext;
     }
 
-    public String makeFileUrl(String fileName){
-        // 날짜 폴더 생성
-        String folderPath = makeFolder();
-        String fileUrl = uploadPath + File.separator + folderPath + File.separator + fileName;
-        return fileUrl;
+    public String makeFileUrl(String fileName, String uploadPath) {
+        String folderPath = makeFolder(uploadPath);
+        return uploadPath + File.separator + folderPath + File.separator + fileName;
     }
 
-    public Image save(ImageDto imageDto){
-        Image image = imageDto.toEntity();
-        return imageJpaRepository.save(image);
-    }
-
-    public String makeFolder() {
+    // 날짜 폴더 생성
+    public String makeFolder(String uploadPath) {
         String str = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
         String folderPath = str.replace("/", File.separator);
-
-        // make folder ----
         File uploadPathFolder = new File(uploadPath, folderPath);
 
         if (!uploadPathFolder.exists()) {
