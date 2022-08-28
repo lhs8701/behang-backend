@@ -4,7 +4,7 @@ import bh.bhback.domain.place.entity.Place;
 import bh.bhback.domain.place.repository.PlaceRepository;
 import bh.bhback.domain.post.dto.PostResponseDto;
 import bh.bhback.domain.post.entity.Post;
-import bh.bhback.global.error.advice.exception.PostNotFoundException;
+import bh.bhback.global.error.advice.exception.CPostNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,6 +14,7 @@ import org.springframework.util.FileCopyUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -29,27 +30,19 @@ public class PlaceService {
      * @return 같은 장소에 대한 Post들
      */
     public List<PostResponseDto> getPostListByContentId(Long contentId) {
-        Place place = placeRepository.findByContentId(contentId);
-        List<Post> postList = place.getPostList();
+        Optional<Place> place = placeRepository.findByContentId(contentId);
+        List<Post> postList = place.orElseThrow().getPostList();;
 
         List<PostResponseDto> postResponseDtoList = new ArrayList<>();
 
-        for(int i=0; i< postList.size(); i++) {
+        for (int i = 0; i < postList.size(); i++) {
             Post post = postList.get(i);
             String fileUrl = post.getImage().getFileUrl();
             File file = new File(fileUrl);
 
             //PostResponseDto 만들기
-            PostResponseDto postResponseDto;
+            PostResponseDto postResponseDto = new PostResponseDto(post);
 
-            try {
-                postResponseDto = new PostResponseDto(post, FileCopyUtils.copyToByteArray(file));
-
-            } catch (Exception e) {
-                log.info("image copyToByteArray error" + e.getMessage());
-                postResponseDto = new PostResponseDto(post, null);
-            }
-            
             //List에 만든 Dto 넣기
             postResponseDtoList.add(postResponseDto);
         }

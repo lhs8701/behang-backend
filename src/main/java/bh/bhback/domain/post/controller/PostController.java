@@ -16,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -97,8 +99,14 @@ public class PostController {
     @ApiOperation(value = "게시물 등록", notes = "게시물 등록")
     @PreAuthorize("hasRole('USER')")
     @PostMapping(headers = "X-AUTH-TOKEN")
-    public SingleResult<Long> upload(@RequestPart PostRequestDto postRequestDto, @RequestPart MultipartFile file, @AuthenticationPrincipal User user) {
-        return responseService.getSingleResult(postService.create(postRequestDto, file, user));
+    public ResponseEntity<Void> upload(@RequestPart PostRequestDto postRequestDto, @RequestPart MultipartFile file, @AuthenticationPrincipal User user) {
+        try {
+            postService.create(postRequestDto, file, user);
+
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        }catch(Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     //    게시물 수정

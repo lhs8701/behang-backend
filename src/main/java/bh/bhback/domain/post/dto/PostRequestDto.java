@@ -25,4 +25,12 @@ public class PostRequestDto {
                 .image(image)
                 .build();
     }
+
+    public Post toEntityWithoutPlace(User user, Image image) {
+        return Post.builder()
+                .tag(this.tag)
+                .user(user)
+                .image(image)
+                .build();
+    }
 }

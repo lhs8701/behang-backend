@@ -11,8 +11,7 @@ import javax.persistence.*;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Entity
 public class Post extends BaseTimeEntity {
 

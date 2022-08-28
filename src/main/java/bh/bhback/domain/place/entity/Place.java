@@ -29,5 +29,9 @@ public class Place {
     @Builder.Default
     @OneToMany(mappedBy = "place", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JsonIgnore
-    private List<Post> postList = new ArrayList<>();
+    private List<Post> postList = new ArrayList<Post>();
+
+    public void setContentId(Long contentId) {
+        this.contentId = contentId;
+    }
 }
