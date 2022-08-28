@@ -1,3 +1,4 @@
+
 package bh.bhback.domain.place.repository;
 
 import bh.bhback.domain.place.entity.Place;

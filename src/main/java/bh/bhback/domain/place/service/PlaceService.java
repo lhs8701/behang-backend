@@ -1,3 +1,4 @@
+
 package bh.bhback.domain.place.service;
 
 import bh.bhback.domain.place.entity.Place;

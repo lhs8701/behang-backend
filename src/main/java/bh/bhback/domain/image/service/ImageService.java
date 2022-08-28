@@ -46,9 +46,7 @@ public class ImageService {
             e.printStackTrace();
         }
 
-        ImageDto imageDto = new ImageDto(fileName, fileOriName, fileUrl);
-        imageJpaRepository.save(imageDto.toEntity());
-        return imageDto;
+        return new ImageDto(fileName, fileOriName, fileUrl);
     }
 
     public ImageDto uploadPostImage(MultipartFile file) {

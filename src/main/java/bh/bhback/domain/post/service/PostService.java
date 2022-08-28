@@ -123,6 +123,7 @@ public class PostService {
                 .orElseThrow(CPostNotFoundException::new);
         List<FeedResponseDto> feedList = new ArrayList<FeedResponseDto>();
 
+
         double curX = curPlaceDto.getCurX();
         double curY = curPlaceDto.getCurY();
 
@@ -132,6 +133,7 @@ public class PostService {
             double MapY = post.getPlace().getMapY();
             double distance = placeService.getDistance(curX, curY, MapX, MapY);
             feedList.add(new FeedResponseDto(post));
+
         }
 
         //정렬 알고리즘 구현

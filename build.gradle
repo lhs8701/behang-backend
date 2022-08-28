@@ -19,6 +19,10 @@ repositories {
 }
 
 dependencies {
+	implementation group: 'org.bouncycastle', name: 'bcpkix-jdk14', version: '1.55'
+
+	//jwt
+	implementation 'com.nimbusds:nimbus-jose-jwt:8.4'
 	//redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
