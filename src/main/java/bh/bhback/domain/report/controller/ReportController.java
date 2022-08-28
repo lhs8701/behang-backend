@@ -3,11 +3,14 @@ package bh.bhback.domain.report.controller;
 
 import bh.bhback.domain.report.service.ReportService;
 import bh.bhback.domain.user.entity.User;
+import bh.bhback.global.common.response.dto.CommonResult;
+import bh.bhback.global.common.response.service.ResponseService;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class ReportController {
 
     private final ReportService reportService;
+    private final ResponseService responseService;
 
     /**
      *
@@ -25,16 +29,9 @@ public class ReportController {
      * @return 신고 이미 했는지 여부
      */
     @PostMapping("/{postId}")
-    public ResponseEntity<Void> reportPost(@PathVariable Long postId, @RequestBody User user) {ddddddd
-        //현재 유저를 어떻게 받아야 할 지 몰라서 이부분 받아서 로직에 포함해야함
-
-        try {
-            reportService.createReport(postId, user);
-
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        }catch(Exception e) { //이미 신고했는 경우에 Exception 발생할 예정
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public CommonResult reportPost(@PathVariable Long postId, @AuthenticationPrincipal User user) {
+        reportService.createReport(postId, user);
+        return responseService.getSuccessResult();
     }
 }
 

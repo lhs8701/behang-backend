@@ -22,7 +22,7 @@ public class ReportService {
     private final UserJpaRepository userJpaRepository;
     private final PostJpaRepository postJpaRepository;
 
-    public void createReport(Long postId, User user) throws Exception{
+    public void createReport(Long postId, User user){
         /*
         처음 생각한 로직
         postId에 대한 신고목록을 가져오기

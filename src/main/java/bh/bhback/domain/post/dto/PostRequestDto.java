@@ -33,4 +33,12 @@ public class PostRequestDto {
                 .image(image)
                 .build();
     }
+    public Post toEntityTest(User user, Image image, Place place) {
+        return Post.builder()
+                .place(place)
+                .tag(this.tag)
+                .user(user)
+                .image(image)
+                .build();
+    }
 }
