@@ -50,10 +50,9 @@ public class PostController {
         return responseService.getListResult(postService.getFeed(pageable));
     }
 
-    @ApiOperation(value="게시물 조회(거리 순 정렬)", notes = "게시물 조회")
+    @ApiOperation(value = "게시물 조회(거리 순 정렬)", notes = "게시물 조회")
     @PostMapping("/feed/sort=Distance")
-    public ListResult<FeedResponseDto> getFeedOrderByDistance(@PageableDefault(size=10) Pageable pageable, @RequestBody CurPlaceDto curPlaceDto)
-    {
+    public ListResult<FeedResponseDto> getFeedOrderByDistance(@PageableDefault(size = 10) Pageable pageable, @RequestBody CurPlaceDto curPlaceDto) {
         return responseService.getListResult(postService.getFeedOrderByDistance(pageable, curPlaceDto));
     }
 
@@ -62,7 +61,7 @@ public class PostController {
             @ApiImplicitParam(
                     name = "X-AUTH-TOKEN",
                     value = "AccessToken",
-                    required = true, dataType="String", paramType = "header"
+                    required = true, dataType = "String", paramType = "header"
             )
     })
 
@@ -99,14 +98,8 @@ public class PostController {
     @ApiOperation(value = "게시물 등록", notes = "게시물 등록")
     @PreAuthorize("hasRole('USER')")
     @PostMapping(headers = "X-AUTH-TOKEN")
-    public ResponseEntity<Void> upload(@RequestPart PostRequestDto postRequestDto, @RequestPart MultipartFile file, @AuthenticationPrincipal User user) {
-        try {
-            postService.create(postRequestDto, file, user);
-
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        }catch(Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public SingleResult<Long> upload(@RequestPart PostRequestDto postRequestDto, @RequestPart MultipartFile file, @AuthenticationPrincipal User user) {
+        return responseService.getSingleResult(postService.create(postRequestDto, file, user));
     }
 
     //    게시물 수정
@@ -129,7 +122,7 @@ public class PostController {
             @ApiImplicitParam(
                     name = "X-AUTH-TOKEN",
                     value = "AccessToken",
-                    required = true, dataType="String", paramType = "header"
+                    required = true, dataType = "String", paramType = "header"
             )
     })
     @ApiOperation(value = "게시물 삭제", notes = "게시물 삭제")

@@ -39,45 +39,25 @@ public class PostService {
 
     private final PostJpaRepository postJpaRepository;
     private final UserJpaRepository userJpaRepository;
-    private final PlaceRepository placeRepository;
+    private final PlaceRepository placeJpaRepository;
 
     private final ImageService imageService;
     private final PlaceService placeService;
 
     @Transactional
-    public void create(PostRequestDto postRequestDto, MultipartFile file, User user) {
-//        Long contentId = postRequestDto.getPlace().getContentId();
-//        Optional<Place> placeOptional = placeRepository.findPlaceByContentId(contentId);
-//        ImageDto imageDto = imageService.uploadPostImage(file);
-//        //이미 해당 Place정보가 DB에 있는경우
-//        if(placeOptional.isPresent()) {
-//            //Post post = postRequestDto.toEntity(user, imageDto.toEntity());
-//            Post post = postRequestDto.toEntityWithoutPlace(user, imageDto.toEntity());
-//            //기존에 있던 place에 post 추가하기
-//            Place place = placeOptional.get();
-//
-//            //기존에 post에 contentId가 저장되지 않던 로직을 일단 set method로 해결
-//            post.setPlace(place);
-//            List<Post> postList = place.getPostList();
-//            postList.add(post);
-//
-//        }else { //해당 정보가 DB에 없는 경우 => 새로 저장
-//            Post post = postJpaRepository.save(postRequestDto.toEntity(user, imageDto.toEntity()));
-//
-//        }
-
+    public Long create(PostRequestDto postRequestDto, MultipartFile file, User user) {
         Long contentId = postRequestDto.getPlace().getContentId();
-        Optional<Place> placeOptional = placeRepository.findPlaceByContentId(contentId);
+        Optional<Place> placeOptional = placeJpaRepository.findByContentId(contentId);
         Place place;
-        if(placeOptional.isEmpty()) {
-            place = placeRepository.save(postRequestDto.getPlace());
-        }
-        else{
+
+        if (placeOptional.isEmpty())
+            place = placeJpaRepository.save(postRequestDto.getPlace());
+        else
             place = placeOptional.get();
-        }
+
         ImageDto imageDto = imageService.uploadPostImage(file);
-        Post post = postRequestDto.toEntityTest(user, imageDto.toEntity(), place);
-        postJpaRepository.save(post);
+        Post post = postRequestDto.toEntity(user, imageDto.toEntity(), place);
+        return postJpaRepository.save(post).getId();
     }
 
     @Transactional

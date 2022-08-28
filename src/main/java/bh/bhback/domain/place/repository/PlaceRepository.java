@@ -10,9 +10,5 @@ import java.util.Optional;
 
 public interface PlaceRepository extends JpaRepository<Place, Long> {
 
-    @Query("select p from Place p join fetch p.postList")
     Optional<Place> findByContentId(Long contentId);
-
-    @Query("select p from Place p join fetch p.postList where p.contentId = :contentId")
-    Optional<Place> findPlaceByContentId(Long contentId);
 }
