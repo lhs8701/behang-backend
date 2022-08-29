@@ -1,10 +1,6 @@
 package bh.bhback.domain.auth.social.apple.service;
-import bh.bhback.domain.auth.service.AuthService;
 import bh.bhback.domain.auth.social.apple.dto.*;
-import bh.bhback.domain.user.repository.UserJpaRepository;
 import bh.bhback.global.error.advice.exception.CCommunicationException;
-import bh.bhback.global.redis.RefreshTokenRedisRepository;
-import bh.bhback.global.security.JwtProvider;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,10 +45,6 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class AppleApiService {
 
-    private final UserJpaRepository userJpaRepository;
-    private final RefreshTokenRedisRepository refreshTokenRedisRepository;
-    private final JwtProvider jwtProvider;
-    private final AuthService authService;
     private final RestTemplate restTemplate;
     private final Gson gson;
     private final Environment env;
@@ -60,7 +52,7 @@ public class AppleApiService {
     public RetAppleLoginOAuth validateRefreshToken(String refreshToken){
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("refresh_token", refreshToken);
-        params.add("client_id", "[앱ID 또는 서비스ID]");
+        params.add("client_id", env.getProperty("social.apple.client-id"));
         params.add("grant_type", "refresh_token");
         params.add("client_secret", makeClientSecret());
 
@@ -70,10 +62,6 @@ public class AppleApiService {
         if (response.getStatusCode() == HttpStatus.OK)
             return gson.fromJson(response.getBody(), RetAppleLoginOAuth.class);
         throw new CCommunicationException();
-    }
-
-    public AppleProfile getAppleProfile(String appleRefreshToken){
-        return null;
     }
 
     public RetAppleSignOAuth getAppleTokenInfo(AppleSignupRequestDto appleSignupRequestDto){
@@ -108,7 +96,7 @@ public class AppleApiService {
             String iss = payload.getIssuer();
             String nonce = (String) payload.getClaim("nonce");
 
-            if (!currentTime.before(payload.getExpirationTime()) || !aud.equals("[identifier]") || !iss.equals("https://appleid.apple.com") || !nonce.equals("[nonce값]")) {
+            if (!currentTime.before(payload.getExpirationTime()) || !aud.equals(env.getProperty("social.apple.client-id")) || !iss.equals(env.getProperty("social.apple.url.aud")) /* || !nonce.equals("[nonce값]") */) {
                 log.error("검증 실패");
             }
         } catch (ParseException e) {
@@ -123,11 +111,11 @@ public class AppleApiService {
         String clientSecret = makeClientSecret();
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("client_id", "[앱ID 또는 서비스ID]");
+        params.add("client_id", env.getProperty("social.apple.client-id"));
         params.add("client_secret", clientSecret);
         params.add("code", appleSignupRequestDto.getCode());
         params.add("grant_type", "authorization_code");
-        params.add("redirect_uri", "[콜백 URI]");
+//        params.add("redirect_uri", "[콜백 URI]");
 
         String requestUrl = env.getProperty("social.apple.url.token");
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params);
@@ -139,7 +127,7 @@ public class AppleApiService {
 
     private String makeClientSecret() {
         try {
-            ClassPathResource resource = new ClassPathResource("[apple developer에서 생성한 키파일].p8");
+            ClassPathResource resource = new ClassPathResource("secrets/AuthKey_23UPQ37ADH.p8");
             String privateKey = new String(Files.readAllBytes(Paths.get(resource.getURI())));
             Reader pemReader = new StringReader(privateKey);
             PEMParser pemParser = new PEMParser(pemReader);
@@ -148,13 +136,13 @@ public class AppleApiService {
 
             Date expirationDate = Date.from(LocalDateTime.now().plusDays(30).atZone(ZoneId.systemDefault()).toInstant());
             String clientSecret = Jwts.builder()
-                    .setHeaderParam("kid", "[key ID]") //apple developer key id
+                    .setHeaderParam("kid", env.getProperty("social.apple.key-id")) //apple developer key id
                     .setHeaderParam("alg", "ES256")
-                    .setIssuer("[팀 ID]")
+                    .setIssuer(env.getProperty("social.apple.team-id"))
                     .setIssuedAt(new Date(System.currentTimeMillis()))
                     .setExpiration(expirationDate)
-                    .setAudience("https://appleid.apple.com")
-                    .setSubject("[앱ID 또는 서비스ID]")
+                    .setAudience(env.getProperty("social.apple.url.aud"))
+                    .setSubject(env.getProperty("social.apple.client-id"))
                     .signWith(SignatureAlgorithm.ES256, converter.getPrivateKey(object))
                     .compact();
             return clientSecret;

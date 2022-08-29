@@ -1,4 +1,4 @@
-package bh.bhback.global.common.jwt.entity;
+package bh.bhback.domain.auth.jwt.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,6 +12,6 @@ public enum JwtExpiration {
     // Refresh 토큰 만료 2일 전에 reissue() 호출되면, refresh 토큰도 새로 발급됨
     REISSUE_EXPIRATION_TIME("Refresh 토큰 만료 시간 / 3일", 1000L * 60 * 60 * 24 * 3);
 
-    private String description;
-    private Long value;
+    private final String description;
+    private final Long value;
 }

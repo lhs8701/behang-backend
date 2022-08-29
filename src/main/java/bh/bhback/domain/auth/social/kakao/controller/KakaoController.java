@@ -1,13 +1,13 @@
 package bh.bhback.domain.auth.social.kakao.controller;
 
 
-import bh.bhback.domain.auth.dto.SocialLoginRequestDto;
-import bh.bhback.domain.auth.dto.UserSocialSignupRequestDto;
+import bh.bhback.domain.auth.basic.dto.SocialLoginRequestDto;
+import bh.bhback.domain.auth.basic.dto.UserSocialSignupRequestDto;
 import bh.bhback.domain.auth.social.kakao.service.KakaoSignService;
 import bh.bhback.global.common.response.service.ResponseService;
 import bh.bhback.global.common.response.dto.CommonResult;
 import bh.bhback.global.common.response.dto.SingleResult;
-import bh.bhback.global.common.jwt.dto.TokenDto;
+import bh.bhback.domain.auth.jwt.dto.TokenResponseDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -31,7 +31,7 @@ public class KakaoController {
             value = "소셜 로그인 - kakao",
             notes = "카카오로 로그인을 합니다.")
     @PostMapping("/login/kakao")
-    public SingleResult<TokenDto> loginByKakao(
+    public SingleResult<TokenResponseDto> loginByKakao(
             @ApiParam(value = "소셜 로그인 dto", required = true)
             @RequestBody SocialLoginRequestDto socialLoginRequestDto) {
 

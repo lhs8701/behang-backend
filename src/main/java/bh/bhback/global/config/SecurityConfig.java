@@ -1,6 +1,6 @@
 package bh.bhback.global.config;
 
-import bh.bhback.global.redis.LogoutAccessTokenRedisRepository;
+import bh.bhback.domain.auth.jwt.repository.LogoutAccessTokenRedisRepository;
 import bh.bhback.global.security.CustomAccessDeniedHandler;
 import bh.bhback.global.security.CustomAuthenticationEntryPoint;
 import bh.bhback.global.security.JwtAuthenticationFilter;

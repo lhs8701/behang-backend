@@ -1,19 +1,19 @@
-package bh.bhback.domain.auth.service;
+package bh.bhback.domain.auth.basic.service;
 
 
-import bh.bhback.domain.auth.dto.UserSignupRequestDto;
+import bh.bhback.domain.auth.basic.dto.UserSignupRequestDto;
 import bh.bhback.domain.user.entity.User;
 import bh.bhback.domain.user.repository.UserJpaRepository;
-import bh.bhback.global.common.jwt.dto.TokenDto;
-import bh.bhback.global.common.jwt.dto.TokenRequestDto;
-import bh.bhback.global.common.jwt.entity.JwtExpiration;
+import bh.bhback.domain.auth.jwt.dto.TokenResponseDto;
+import bh.bhback.domain.auth.jwt.dto.TokenRequestDto;
+import bh.bhback.domain.auth.jwt.entity.JwtExpiration;
 import bh.bhback.global.error.advice.exception.CRefreshTokenException;
 import bh.bhback.global.error.advice.exception.CRefreshTokenExpiredException;
 import bh.bhback.global.error.advice.exception.CUserExistException;
-import bh.bhback.global.redis.LogoutAccessToken;
-import bh.bhback.global.redis.LogoutAccessTokenRedisRepository;
-import bh.bhback.global.redis.RefreshToken2;
-import bh.bhback.global.redis.RefreshTokenRedisRepository;
+import bh.bhback.domain.auth.jwt.entity.LogoutAccessToken;
+import bh.bhback.domain.auth.jwt.repository.LogoutAccessTokenRedisRepository;
+import bh.bhback.domain.auth.jwt.entity.RefreshToken;
+import bh.bhback.domain.auth.jwt.repository.RefreshTokenRedisRepository;
 import bh.bhback.global.security.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,27 +41,27 @@ public class AuthService {
     }
 
     @Transactional
-    public TokenDto reissue(TokenRequestDto tokenRequestDto) {
+    public TokenResponseDto reissue(TokenRequestDto tokenRequestDto) {
 
         String oldAccessToken = tokenRequestDto.getAccessToken();
         Authentication authentication = jwtProvider.getAuthentication(oldAccessToken);
         User user = (User) authentication.getPrincipal();
 
         String oldRefreshToken = tokenRequestDto.getRefreshToken();
-        RefreshToken2 oldRedisRefreshToken = refreshTokenRedisRepository.findById(user.getUserId()).orElseThrow(CRefreshTokenExpiredException::new);
+        RefreshToken oldRedisRefreshToken = refreshTokenRedisRepository.findById(user.getUserId()).orElseThrow(CRefreshTokenExpiredException::new);
 
         if (oldRefreshToken.equals(oldRedisRefreshToken.getRefreshToken())) {
             String accessToken = jwtProvider.generateAccessToken(user.getUserId(), user.getRoles());
             if (jwtProvider.getExpiration(oldRefreshToken) < JwtExpiration.REISSUE_EXPIRATION_TIME.getValue()) {
                 String refreshToken = jwtProvider.generateRefreshToken(user.getUserId(), user.getRoles());
-                refreshTokenRedisRepository.save(new RefreshToken2(user.getUserId(), refreshToken));
-                return TokenDto.builder()
+                refreshTokenRedisRepository.save(new RefreshToken(user.getUserId(), refreshToken));
+                return TokenResponseDto.builder()
                         .grantType("bearer")
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
                         .build();
             }
-            return TokenDto.builder()
+            return TokenResponseDto.builder()
                     .grantType("bearer")
                     .accessToken(accessToken)
                     .refreshToken(oldRefreshToken)

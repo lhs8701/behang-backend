@@ -1,4 +1,4 @@
-package bh.bhback.global.redis;
+package bh.bhback.domain.auth.jwt.entity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

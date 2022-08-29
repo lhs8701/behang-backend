@@ -17,18 +17,10 @@ public class PostRequestDto {
     private Tag tag;
     private Place place;
 
-    public Post toEntity(User user, Image image) {
+    public Post toEntity(User user, Image image, Place place) {
         return Post.builder()
                 .tag(this.tag)
-                .place(this.place)
-                .user(user)
-                .image(image)
-                .build();
-    }
-
-    public Post toEntityWithoutPlace(User user, Image image) {
-        return Post.builder()
-                .tag(this.tag)
+                .place(place)
                 .user(user)
                 .image(image)
                 .build();

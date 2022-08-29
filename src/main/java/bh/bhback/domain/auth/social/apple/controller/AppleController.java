@@ -4,7 +4,7 @@ import bh.bhback.domain.auth.social.apple.dto.AppleSignupRequestDto;
 import bh.bhback.domain.auth.social.apple.service.AppleSignService;
 import bh.bhback.global.common.response.service.ResponseService;
 import bh.bhback.global.common.response.dto.SingleResult;
-import bh.bhback.global.common.jwt.dto.TokenDto;
+import bh.bhback.domain.auth.jwt.dto.TokenResponseDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ public class AppleController {
             value = "소셜 로그인 - apple",
             notes = "애플로 로그인을 합니다.")
     @PostMapping("/login/apple")
-    public SingleResult<TokenDto> loginByApple(@RequestBody String refreshToken) {
+    public SingleResult<TokenResponseDto> loginByApple(@RequestBody String refreshToken) {
         return responseService.getSingleResult(appleSignService.loginByApple(refreshToken));
     }
 

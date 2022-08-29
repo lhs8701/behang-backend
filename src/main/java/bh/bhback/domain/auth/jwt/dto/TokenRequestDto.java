@@ -1,4 +1,4 @@
-package bh.bhback.global.common.jwt.dto;
+package bh.bhback.domain.auth.jwt.dto;
 
 import lombok.Builder;
 import lombok.Getter;

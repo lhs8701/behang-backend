@@ -1,7 +1,6 @@
 package bh.bhback.global.security;
 
-import bh.bhback.global.error.advice.exception.CLogoutException;
-import bh.bhback.global.redis.LogoutAccessTokenRedisRepository;
+import bh.bhback.domain.auth.jwt.repository.LogoutAccessTokenRedisRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;

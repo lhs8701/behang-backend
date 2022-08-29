@@ -1,4 +1,4 @@
-package bh.bhback.domain.auth.dto;
+package bh.bhback.domain.auth.basic.dto;
 
 import bh.bhback.domain.user.entity.User;
 import lombok.*;

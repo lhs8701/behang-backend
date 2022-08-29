@@ -10,4 +10,6 @@ import lombok.NoArgsConstructor;
 public class AppleSignupRequestDto {
     private String id_token;
     private String code;
+    private String nickName;
+    private Long userId;
 }

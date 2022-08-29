@@ -161,6 +161,16 @@ public class ExceptionAdvice {
         return responseService.getFailResult
                 (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
     }
+
+    /**
+     * 중복 신고할 경우
+     */
+    @ExceptionHandler(CReportDuplicatedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected CommonResult reportDuplicatedException(HttpServletRequest request, CReportDuplicatedException e) {
+        return responseService.getFailResult
+                (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
+    }
 }
 
 

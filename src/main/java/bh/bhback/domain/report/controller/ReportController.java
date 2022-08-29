@@ -3,11 +3,19 @@ package bh.bhback.domain.report.controller;
 
 import bh.bhback.domain.report.service.ReportService;
 import bh.bhback.domain.user.entity.User;
+import bh.bhback.global.common.response.dto.CommonResult;
+import bh.bhback.global.common.response.dto.SingleResult;
+import bh.bhback.global.common.response.service.ResponseService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -18,23 +26,38 @@ import org.springframework.web.bind.annotation.*;
 public class ReportController {
 
     private final ReportService reportService;
+    private final ResponseService responseService;
 
     /**
      *
      * @param postId (Report할 게시글 number)
      * @return 신고 이미 했는지 여부
      */
-    @PostMapping("/{postId}")
-    public ResponseEntity<Void> reportPost(@PathVariable Long postId, @RequestBody User user) {
-        //현재 유저를 어떻게 받아야 할 지 몰라서 이부분 받아서 로직에 포함해야함
 
-        try {
-            reportService.createReport(postId, user);
-
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        }catch(Exception e) { //이미 신고했는 경우에 Exception 발생할 예정
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    @ApiImplicitParams({
+            @ApiImplicitParam(
+                    name = "X-AUTH-TOKEN",
+                    value = "AccessToken",
+                    required = true, dataType = "String", paramType = "header"
+            )
+    })
+    @ApiOperation(
+            value = "신고한다.",
+            notes = "한 게시물 당 1회 가능"
+    )
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping(value = "/{postId}", headers = "X-AUTH-TOKEN")
+    public CommonResult reportPost(@PathVariable Long postId, @AuthenticationPrincipal User user) {
+        reportService.createReport(postId, user);
+        return responseService.getSuccessResult();
+    }
+    @ApiOperation(
+            value = "신고 횟수 조회 (TEST용)",
+            notes = "실제 서비스 시 삭제 예정"
+    )
+    @GetMapping("/{postId}")
+    public SingleResult<Integer> getReportCount(@PathVariable Long postId){
+        return responseService.getSingleResult(reportService.getReportCount(postId));
     }
 }
 
