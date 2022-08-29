@@ -4,7 +4,7 @@ import bh.bhback.domain.image.dto.ImageDto;
 import bh.bhback.domain.image.service.ImageService;
 import bh.bhback.domain.place.dto.CurPlaceDto;
 import bh.bhback.domain.place.entity.Place;
-import bh.bhback.domain.place.repository.PlaceRepository;
+import bh.bhback.domain.place.repository.PlaceJpaRepository;
 import bh.bhback.domain.place.service.PlaceService;
 import bh.bhback.domain.post.dto.FeedResponseDto;
 import bh.bhback.domain.post.dto.PostRequestDto;
@@ -24,11 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import java.io.File;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,7 +34,7 @@ public class PostService {
 
     private final PostJpaRepository postJpaRepository;
     private final UserJpaRepository userJpaRepository;
-    private final PlaceRepository placeJpaRepository;
+    private final PlaceJpaRepository placeJpaRepository;
 
     private final ImageService imageService;
     private final PlaceService placeService;

@@ -2,15 +2,13 @@
 package bh.bhback.domain.place.service;
 
 import bh.bhback.domain.place.entity.Place;
-import bh.bhback.domain.place.repository.PlaceRepository;
+import bh.bhback.domain.place.repository.PlaceJpaRepository;
 import bh.bhback.domain.post.dto.PostResponseDto;
 import bh.bhback.domain.post.entity.Post;
-import bh.bhback.global.error.advice.exception.CPostNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.FileCopyUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -23,7 +21,7 @@ import java.util.Optional;
 @Transactional
 public class PlaceService {
 
-    private final PlaceRepository placeRepository;
+    private final PlaceJpaRepository placeJpaRepository;
 
     /**
      *
@@ -31,7 +29,7 @@ public class PlaceService {
      * @return 같은 장소에 대한 Post들
      */
     public List<PostResponseDto> getPostListByContentId(Long contentId) {
-        Optional<Place> place = placeRepository.findByContentId(contentId);
+        Optional<Place> place = placeJpaRepository.findByContentId(contentId);
         List<Post> postList = place.orElseThrow().getPostList();;
 
         List<PostResponseDto> postResponseDtoList = new ArrayList<>();
