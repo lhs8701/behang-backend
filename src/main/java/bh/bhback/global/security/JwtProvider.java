@@ -1,14 +1,12 @@
 package bh.bhback.global.security;
 
 
-import bh.bhback.global.common.jwt.dto.TokenDto;
-import bh.bhback.global.common.jwt.entity.JwtExpiration;
+import bh.bhback.domain.auth.jwt.dto.TokenResponseDto;
+import bh.bhback.domain.auth.jwt.entity.JwtExpiration;
 import bh.bhback.global.error.ErrorCode;
 import bh.bhback.global.error.advice.exception.CAuthenticationEntryPointException;
-import bh.bhback.global.error.advice.exception.CLogoutException;
-import bh.bhback.global.redis.LogoutAccessTokenRedisRepository;
+import bh.bhback.domain.auth.jwt.repository.LogoutAccessTokenRedisRepository;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.impl.Base64UrlCodec;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +17,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -49,8 +46,8 @@ public class JwtProvider {
     }
 
     // Jwt 생성 (access, refresh토큰을 각각 만들어서 tokenDto로 만든 후 반환)
-    public TokenDto createTokenDto(String accessToken, String refreshToken) { //토큰에 저장할 유저 pk와 권한 리스트를 매개변수로 받는다.
-        return TokenDto.builder()
+    public TokenResponseDto createTokenDto(String accessToken, String refreshToken) { //토큰에 저장할 유저 pk와 권한 리스트를 매개변수로 받는다.
+        return TokenResponseDto.builder()
                 .grantType("bearer")
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
@@ -65,15 +62,13 @@ public class JwtProvider {
         // 생성날짜, 만료날짜를 위한 Date
         Date now = new Date();
 
-        String accessToken = Jwts.builder()
+        return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE) //access token, refresh token 시 추가된 부분
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + JwtExpiration.ACCESS_TOKEN_EXPIRATION_TIME.getValue()))
                 .signWith(getSigningKey(secretKey), SignatureAlgorithm.HS256)
                 .compact();
-
-        return accessToken;
     }
 
     public String generateRefreshToken(Long userPk, List<String> roles) {
@@ -84,13 +79,11 @@ public class JwtProvider {
         // 생성날짜, 만료날짜를 위한 Date
         Date now = new Date();
 
-        String refreshToken = Jwts.builder()
+        return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE) //access token, refresh token 시 추가된 부분
                 .setExpiration(new Date(now.getTime() + JwtExpiration.REFRESH_TOKEN_EXPIRATION_TIME.getValue()))
                 .signWith(getSigningKey(secretKey), SignatureAlgorithm.HS256)
                 .compact();
-
-        return refreshToken;
     }
 
 

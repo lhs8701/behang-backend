@@ -35,7 +35,6 @@ public class PostService {
     private final PostJpaRepository postJpaRepository;
     private final UserJpaRepository userJpaRepository;
     private final PlaceJpaRepository placeJpaRepository;
-
     private final ImageService imageService;
     private final PlaceService placeService;
 

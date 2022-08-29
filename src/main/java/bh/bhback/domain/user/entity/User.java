@@ -1,5 +1,6 @@
 package bh.bhback.domain.user.entity;
 
+import bh.bhback.domain.auth.jwt.entity.AppleRefreshToken;
 import bh.bhback.domain.post.entity.Post;
 import bh.bhback.domain.report.entity.Report;
 import bh.bhback.global.common.jpa.BaseTimeEntity;
@@ -57,6 +58,8 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Builder.Default
     private List<String> roles = new ArrayList<>();
 
+    @OneToOne(mappedBy = "user")
+    private AppleRefreshToken appleRefreshToken;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

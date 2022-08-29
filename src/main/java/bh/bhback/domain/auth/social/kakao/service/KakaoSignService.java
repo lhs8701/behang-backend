@@ -1,19 +1,16 @@
 package bh.bhback.domain.auth.social.kakao.service;
 
-import bh.bhback.domain.auth.dto.UserSignupRequestDto;
-import bh.bhback.domain.auth.dto.SocialLoginRequestDto;
-import bh.bhback.domain.auth.dto.UserSocialSignupRequestDto;
-import bh.bhback.domain.auth.service.AuthService;
+import bh.bhback.domain.auth.basic.dto.UserSignupRequestDto;
+import bh.bhback.domain.auth.basic.dto.SocialLoginRequestDto;
+import bh.bhback.domain.auth.basic.dto.UserSocialSignupRequestDto;
+import bh.bhback.domain.auth.basic.service.AuthService;
 import bh.bhback.domain.auth.social.kakao.dto.KakaoProfile;
 import bh.bhback.domain.user.entity.User;
 import bh.bhback.domain.user.repository.UserJpaRepository;
-import bh.bhback.global.common.jwt.entity.JwtExpiration;
-import bh.bhback.global.redis.RefreshToken2;
-import bh.bhback.global.redis.RefreshTokenRedisRepository;
+import bh.bhback.domain.auth.jwt.entity.RefreshToken;
+import bh.bhback.domain.auth.jwt.repository.RefreshTokenRedisRepository;
 import bh.bhback.global.security.JwtProvider;
-import bh.bhback.global.common.jwt.entity.RefreshToken;
-import bh.bhback.global.common.jwt.repository.RefreshTokenJpaRepo;
-import bh.bhback.global.common.jwt.dto.TokenDto;
+import bh.bhback.domain.auth.jwt.dto.TokenResponseDto;
 import bh.bhback.global.error.advice.exception.CUserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,13 +23,12 @@ public class KakaoSignService {
 
     private final JwtProvider jwtProvider;
     private final UserJpaRepository userJpaRepository;
-    private final RefreshTokenJpaRepo refreshTokenJpaRepo;
     private final KakaoApiService kakaoApiService;
     private final AuthService authService;
     private final RefreshTokenRedisRepository refreshTokenRedisRepository;
 
 
-    public TokenDto loginByKakao(SocialLoginRequestDto socialLoginRequestDto) {
+    public TokenResponseDto loginByKakao(SocialLoginRequestDto socialLoginRequestDto) {
 
         KakaoProfile kakaoProfile = kakaoApiService.getKakaoProfile(socialLoginRequestDto.getAccessToken());
         if (kakaoProfile == null)
@@ -42,12 +38,12 @@ public class KakaoSignService {
                 .orElseThrow(CUserNotFoundException::new);
         String accessToken = jwtProvider.generateAccessToken(user.getUserId(), user.getRoles());
         String refreshToken = jwtProvider.generateRefreshToken(user.getUserId(), user.getRoles());
-        TokenDto tokenDto = jwtProvider.createTokenDto(accessToken, refreshToken);
+        TokenResponseDto tokenResponseDto = jwtProvider.createTokenDto(accessToken, refreshToken);
 
         //redis
-        refreshTokenRedisRepository.save(new RefreshToken2(user.getUserId(), tokenDto.getRefreshToken()));
+        refreshTokenRedisRepository.save(new RefreshToken(user.getUserId(), tokenResponseDto.getRefreshToken()));
 
-        return tokenDto;
+        return tokenResponseDto;
     }
 
     public void signupByKakao(UserSocialSignupRequestDto socialSignupRequestDto) {

@@ -23,7 +23,7 @@ public class Report extends BaseTimeEntity {
     @JoinColumn(name="id")
     private Post post;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     @JoinColumn(name="user_id")
     private User user;
 }

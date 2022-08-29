@@ -1,7 +1,7 @@
 package bh.bhback.domain.auth.social.kakao;
 
-import bh.bhback.domain.auth.dto.SocialLoginRequestDto;
-import bh.bhback.domain.auth.dto.UserSocialSignupRequestDto;
+import bh.bhback.domain.auth.basic.dto.SocialLoginRequestDto;
+import bh.bhback.domain.auth.basic.dto.UserSocialSignupRequestDto;
 import bh.bhback.domain.user.entity.User;
 import bh.bhback.domain.user.repository.UserJpaRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;

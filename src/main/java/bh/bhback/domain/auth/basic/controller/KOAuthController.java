@@ -1,4 +1,4 @@
-package bh.bhback.domain.auth.controller;
+package bh.bhback.domain.auth.basic.controller;
 
 
 
