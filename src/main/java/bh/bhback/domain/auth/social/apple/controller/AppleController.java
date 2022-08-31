@@ -1,8 +1,6 @@
 package bh.bhback.domain.auth.social.apple.controller;
 
 import bh.bhback.domain.auth.social.apple.dto.AppleLoginRequestDto;
-import bh.bhback.domain.auth.social.apple.dto.AppleSignupRequestDto;
-import bh.bhback.domain.auth.social.apple.dto.AppleSignupResponseDto;
 import bh.bhback.domain.auth.social.apple.service.AppleSignService;
 import bh.bhback.global.common.response.service.ResponseService;
 import bh.bhback.global.common.response.dto.SingleResult;
@@ -31,7 +29,6 @@ public class AppleController {
     @ApiOperation(
             value = "소셜 로그인 - apple",
             notes = "애플로 로그인을 합니다.")
-    @PreAuthorize("permitAll()")
     @PostMapping("/login/apple")
     public SingleResult<TokenResponseDto> loginByApple(@RequestBody AppleLoginRequestDto appleLoginRequestDto) {
         return responseService.getSingleResult(appleSignService.loginByApple(appleLoginRequestDto));
@@ -40,10 +37,9 @@ public class AppleController {
     @ApiOperation(
             value = "소셜 회원가입 - apple",
             notes = "애플로 회원가입을 합니다.")
-    @PreAuthorize("permitAll()")
     @PostMapping("/signup/apple")
-    public SingleResult<AppleSignupResponseDto> signupByApple(@RequestBody AppleSignupRequestDto appleSignupRequestDto) {
-        return responseService.getSingleResult(appleSignService.signupByApple(appleSignupRequestDto));
+    public SingleResult<Long> signupByApple(@RequestBody AppleLoginRequestDto appleLoginRequestDto) {
+        return responseService.getSingleResult(appleSignService.signupByApple(appleLoginRequestDto));
     }
 }
 
