@@ -11,6 +11,7 @@ public class CReportDuplicatedException extends RuntimeException{
     ErrorCode errorCode;
 
     public CReportDuplicatedException(){
+        super();
         this.errorCode = ErrorCode.REPORT_DUPLICATED_ERROR;
     }
 }

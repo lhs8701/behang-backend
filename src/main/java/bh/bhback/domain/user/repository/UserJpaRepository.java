@@ -9,7 +9,4 @@ import java.util.Optional;
 public interface UserJpaRepository extends JpaRepository<User, Long> {
 
     Optional<User> findBySocialIdAndProvider(String socialId, String provider);
-
-    @Query("select u from User u join fetch u.reportList")
-    User findByUserIdJoinReport(Long userId);
 }

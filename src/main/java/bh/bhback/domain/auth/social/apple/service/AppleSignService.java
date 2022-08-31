@@ -23,46 +23,27 @@ public class AppleSignService {
 
     private final UserJpaRepository userJpaRepository;
     private final RefreshTokenRedisRepository refreshTokenRedisRepository;
-    private final AppleRefreshTokenJpaRepository appleRefreshTokenJpaRepository;
     private final JwtProvider jwtProvider;
     private final AuthService authService;
-    private final AppleApiService appleApiService;
 
-    public TokenResponseDto loginByApple(String requestRefreshToken) {
-        RetAppleLoginOAuth retAppleLoginOAuth = appleApiService.validateRefreshToken(requestRefreshToken);
-        if (retAppleLoginOAuth == null)
-            throw new CUserNotFoundException();
-
-        User user = appleRefreshTokenJpaRepository
-                .findById(requestRefreshToken)
-                .orElseThrow(CUserNotFoundException::new)
-                .getUser();
+    public TokenResponseDto loginByApple(AppleLoginRequestDto appleLoginRequestDto) {
+        User user = userJpaRepository.findBySocialIdAndProvider(appleLoginRequestDto.getSocialId(), "apple")
+                .orElseThrow(CUserNotFoundException::new);
         String accessToken = jwtProvider.generateAccessToken(user.getUserId(), user.getRoles());
         String refreshToken = jwtProvider.generateRefreshToken(user.getUserId(), user.getRoles());
-        TokenResponseDto tokenResponseDto = jwtProvider.createTokenDto(accessToken, refreshToken);
+        TokenResponseDto tokenDto = jwtProvider.createTokenDto(accessToken, refreshToken);
+        refreshTokenRedisRepository.save(new RefreshToken(user.getUserId(), tokenDto.getRefreshToken()));
 
-        refreshTokenRedisRepository.save(new RefreshToken(user.getUserId(), tokenResponseDto.getRefreshToken()));
-
-        return tokenResponseDto;
+        return tokenDto;
     }
 
-    public String signupByApple(AppleSignupRequestDto appleSignupRequestDto) {
-        RetAppleSignOAuth retAppleSignOAuth = appleApiService.getAppleTokenInfo(appleSignupRequestDto);
+    public Long signupByApple(AppleLoginRequestDto appleLoginRequestDto) {
 
-        Long userId = authService.socialSignup(UserSignupRequestDto.builder()
-                .socialId(String.valueOf(appleSignupRequestDto.getUserId()))
-                .nickName(appleSignupRequestDto.getNickName())
+        return authService.socialSignup(UserSignupRequestDto.builder()
+                .socialId(appleLoginRequestDto.getSocialId())
+                .nickName(appleLoginRequestDto.getNickName())
                 .profileImage("/static/default_profile_image.png")
                 .provider("apple")
                 .build());
-
-        AppleRefreshToken appleRefreshToken = AppleRefreshToken.builder()
-                .refreshToken(retAppleSignOAuth.getRefresh_token())
-                .user(userJpaRepository.findById(userId).orElseThrow(CUserNotFoundException::new))
-                .build();
-
-        appleRefreshTokenJpaRepository.save(appleRefreshToken);
-
-        return retAppleSignOAuth.getRefresh_token();
     }
 }

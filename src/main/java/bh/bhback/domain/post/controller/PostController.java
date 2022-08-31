@@ -16,8 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -49,8 +47,15 @@ public class PostController {
     public ListResult<FeedResponseDto> getFeed(@PageableDefault(size = 10) Pageable pageable) {
         return responseService.getListResult(postService.getFeed(pageable));
     }
+    @ApiOperation(value = "같은 장소에 대한 피드 조회", notes = "서브 피드 조회")
+    @PreAuthorize("permitAll()")
+    @GetMapping("/feed/place/{contentId}")
+    public ListResult<FeedResponseDto> getFeedInSamePlace (@PathVariable Long contentId)
+    {
+        return responseService.getListResult(postService.getFeedInSamePlace(contentId));
+    }
 
-    @ApiOperation(value = "게시물 조회(거리 순 정렬)", notes = "게시물 조회")
+    @ApiOperation(value = "피드 조회(거리 순 정렬)", notes = "메인 피드 조회")
     @PostMapping("/feed/sort=Distance")
     public ListResult<FeedResponseDto> getFeedOrderByDistance(@PageableDefault(size = 10) Pageable pageable, @RequestBody CurPlaceDto curPlaceDto) {
         return responseService.getListResult(postService.getFeedOrderByDistance(pageable, curPlaceDto));
