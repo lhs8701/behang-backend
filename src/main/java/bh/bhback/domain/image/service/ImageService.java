@@ -35,7 +35,7 @@ public class ImageService {
 //        }
 //      String fileName = originalFileName.substring(originalFileName.lastIndexOf("\\") + 1);
 
-        String fileOriName = Optional.ofNullable(file.getOriginalFilename()).orElse("empty");
+        String fileOriName = Optional.ofNullable(file.getOriginalFilename()).orElse("image");
         String fileName = makeFileName(fileOriName);
         String fileUrl = makeFileUrl(fileName, uploadPath);
         Path savePath = Paths.get(fileUrl);

@@ -62,14 +62,6 @@ public class PostController {
     }
 
     //유저가 올린 게시물 리스트 조회
-    @ApiImplicitParams({
-            @ApiImplicitParam(
-                    name = "X-AUTH-TOKEN",
-                    value = "AccessToken",
-                    required = true, dataType = "String", paramType = "header"
-            )
-    })
-
     @ApiOperation(value = "유저 피드 조회", notes = "해당 유저의 피드 조회")
     @PreAuthorize("permitAll()")
     @GetMapping("/feed/{userId}")
