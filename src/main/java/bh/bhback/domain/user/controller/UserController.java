@@ -64,9 +64,16 @@ public class UserController {
     }
 
     //내 프로필 조회
+    @ApiImplicitParams({
+            @ApiImplicitParam(
+                    name = "X-AUTH-TOKEN",
+                    value = "AccessToken",
+                    required = true, dataType = "String", paramType = "header"
+            )
+    })
     @ApiOperation(value = "유저 프로필 조회", notes = "회원 아이디로 프로필을 조회합니다.")
-    @PreAuthorize("permitAll()")
-    @GetMapping("/profile/me")
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping(value = "/profile/me", headers = "X-AUTH-TOKEN")
     public SingleResult<UserProfileDto> getMyProfile
     (@ApiParam(value = "회원 아이디", required = true) @AuthenticationPrincipal User user) {
         return responseService.getSingleResult(userService.getUserProfile(user.getUserId()));

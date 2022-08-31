@@ -1,10 +1,13 @@
 package bh.bhback.domain.place.controller;
 
 import bh.bhback.domain.place.service.PlaceService;
+import bh.bhback.domain.post.dto.FeedResponseDto;
 import bh.bhback.domain.post.dto.PostRequestDto;
 import bh.bhback.domain.post.dto.PostResponseDto;
 import bh.bhback.domain.post.entity.Post;
+import bh.bhback.global.common.response.dto.ListResult;
 import bh.bhback.global.common.response.dto.SingleResult;
+import bh.bhback.global.common.response.service.ResponseService;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,18 +29,7 @@ import java.util.List;
 public class PlaceController {
 
     private final PlaceService placeService;
+    private final ResponseService responseService;
 
-    @GetMapping("/{contentId}")
-    public ResponseEntity<List<PostResponseDto>> getPostByContentId (@PathVariable Long contentId)
-    {
-        try {
-            List<PostResponseDto> postResponseDtoList = placeService.getPostListByContentId(contentId);
 
-            return ResponseEntity.ok().body(postResponseDtoList);
-        }catch(Exception e) {
-            
-            //body 없는 notFound ResponseEntity 반환
-            return ResponseEntity.notFound().build();
-        }
-    }
 }

@@ -15,6 +15,7 @@ import bh.bhback.domain.post.repository.PostJpaRepository;
 import bh.bhback.domain.user.entity.User;
 import bh.bhback.domain.user.repository.UserJpaRepository;
 import bh.bhback.global.error.advice.exception.CAccessDeniedException;
+import bh.bhback.global.error.advice.exception.CPlaceNotFoundException;
 import bh.bhback.global.error.advice.exception.CUserNotFoundException;
 import bh.bhback.global.error.advice.exception.CPostNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -93,6 +94,18 @@ public class PostService {
     }
 
     /**
+     * @param contentId(장소 고유 코드)
+     * @return 같은 장소에 대한 Post들
+     */
+    public List<FeedResponseDto> getFeedInSamePlace(Long contentId) {
+        Place place = placeJpaRepository.findByContentId(contentId).orElseThrow(CPlaceNotFoundException::new);
+
+        return place.getPostList().stream()
+                .map(FeedResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * @param pageable
      * @param curPlaceDto (현재 위치)
      * @return 현재 부터 떨어진 거리순으로 정렬된 Feed
@@ -111,7 +124,7 @@ public class PostService {
             double MapX = post.getPlace().getMapX();
             double MapY = post.getPlace().getMapY();
             double distance = placeService.getDistance(curX, curY, MapX, MapY);
-            feedList.add(new FeedResponseDto(post));
+            feedList.add(new FeedResponseDto(post, distance));
         }
 
         //정렬 알고리즘 구현

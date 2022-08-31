@@ -171,6 +171,17 @@ public class ExceptionAdvice {
         return responseService.getFailResult
                 (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
     }
+
+    /**
+     * 등록되지 않은 장소일 경우
+     */
+    @ExceptionHandler(CPlaceNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected CommonResult placeNotFoundException(HttpServletRequest request, CPlaceNotFoundException e) {
+        return responseService.getFailResult
+                (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
+    }
+
 }
 
 

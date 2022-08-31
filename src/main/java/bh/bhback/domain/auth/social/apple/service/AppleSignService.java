@@ -28,7 +28,8 @@ public class AppleSignService {
     private final AuthService authService;
     private final AppleApiService appleApiService;
 
-    public TokenResponseDto loginByApple(String requestRefreshToken) {
+    public TokenResponseDto loginByApple(AppleLoginRequestDto appleLoginRequestDto) {
+        String requestRefreshToken = appleLoginRequestDto.getRefreshToken();
         RetAppleLoginOAuth retAppleLoginOAuth = appleApiService.validateRefreshToken(requestRefreshToken);
         if (retAppleLoginOAuth == null)
             throw new CUserNotFoundException();
@@ -46,11 +47,11 @@ public class AppleSignService {
         return tokenResponseDto;
     }
 
-    public String signupByApple(AppleSignupRequestDto appleSignupRequestDto) {
+    public AppleSignupResponseDto signupByApple(AppleSignupRequestDto appleSignupRequestDto) {
         RetAppleSignOAuth retAppleSignOAuth = appleApiService.getAppleTokenInfo(appleSignupRequestDto);
 
         Long userId = authService.socialSignup(UserSignupRequestDto.builder()
-                .socialId(String.valueOf(appleSignupRequestDto.getUserId()))
+                .socialId(appleSignupRequestDto.getUserId())
                 .nickName(appleSignupRequestDto.getNickName())
                 .profileImage("/static/default_profile_image.png")
                 .provider("apple")
@@ -63,6 +64,6 @@ public class AppleSignService {
 
         appleRefreshTokenJpaRepository.save(appleRefreshToken);
 
-        return retAppleSignOAuth.getRefresh_token();
+        return new AppleSignupResponseDto(retAppleSignOAuth.getRefresh_token());
     }
 }
