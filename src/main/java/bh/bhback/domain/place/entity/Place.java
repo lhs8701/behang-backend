@@ -23,6 +23,7 @@ public class Place {
     private String name;
     private String address;
     private String phoneNumber;
+    private Integer areaCode;
     private Double mapX;
     private Double mapY;
 
@@ -31,7 +32,4 @@ public class Place {
     @JsonIgnore
     private List<Post> postList = new ArrayList<Post>();
 
-    public void setContentId(Long contentId) {
-        this.contentId = contentId;
-    }
 }

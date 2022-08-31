@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PostJpaRepository extends JpaRepository<Post, Long> {
+
+    Optional<List<Post>> findAllByUser(User user);
     Optional<List<Post>> findAllByOrderByCreatedDateDesc(Pageable pageable);
     Optional<List<Post>> findAllByUserOrderByCreatedDateDesc(User user, Pageable pageable);
 }
