@@ -21,6 +21,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
+
 
 @Slf4j
 @RestController
@@ -57,7 +59,7 @@ public class PostController {
 
     @ApiOperation(value = "피드 조회(거리 순 정렬)", notes = "메인 피드 조회")
     @PostMapping("/feed/sort=Distance")
-    public ListResult<FeedResponseDto> getFeedOrderByDistance(@PageableDefault(size = 10) Pageable pageable, @RequestBody CurPlaceDto curPlaceDto) {
+    public ListResult<FeedResponseDto> getFeedOrderByDistance(@PageableDefault(size = 10) Pageable pageable, @RequestBody @Valid CurPlaceDto curPlaceDto) {
         return responseService.getListResult(postService.getFeedOrderByDistance(pageable, curPlaceDto));
     }
 
@@ -95,7 +97,7 @@ public class PostController {
     @ApiOperation(value = "게시물 등록", notes = "게시물 등록")
     @PreAuthorize("hasRole('USER')")
     @PostMapping(headers = "X-AUTH-TOKEN")
-    public SingleResult<Long> upload(@RequestPart PostRequestDto postRequestDto, @RequestPart MultipartFile file, @AuthenticationPrincipal User user) {
+    public SingleResult<Long> upload(@RequestPart @Valid PostRequestDto postRequestDto, @RequestPart MultipartFile file, @AuthenticationPrincipal User user) {
         return responseService.getSingleResult(postService.create(postRequestDto, file, user));
     }
 
@@ -110,7 +112,7 @@ public class PostController {
     @ApiOperation(value = "게시물 수정", notes = "게시물 수정")
     @PreAuthorize("hasRole('USER')")
     @PatchMapping(value = "/{postId}", headers = "X-AUTH-TOKEN")
-    public SingleResult<Long> update(@PathVariable Long postId, @RequestBody PostUpdateParam postUpdateParam, @AuthenticationPrincipal User user) {
+    public SingleResult<Long> update(@PathVariable Long postId, @RequestBody @Valid PostUpdateParam postUpdateParam, @AuthenticationPrincipal User user) {
         return responseService.getSingleResult(postService.update(postId, postUpdateParam, user));
     }
 

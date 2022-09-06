@@ -1,5 +1,6 @@
 package bh.bhback.domain.auth.basic.controller;
 
+import bh.bhback.domain.auth.basic.dto.LogoutWithdrawalRequestDto;
 import bh.bhback.domain.auth.basic.service.AuthService;
 import bh.bhback.domain.user.entity.User;
 import bh.bhback.global.common.response.dto.CommonResult;
@@ -13,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @Slf4j
 @Api(tags = {"Basic Auth"})
@@ -28,37 +31,7 @@ public class AuthController {
     @PostMapping(value = "/reissue")
     public SingleResult<TokenResponseDto> reissue(
             @ApiParam(value = "토큰 재발급 요청 DTO", required = true)
-            @RequestBody TokenRequestDto tokenRequestDto) {
+            @RequestBody @Valid TokenRequestDto tokenRequestDto) {
         return responseService.getSingleResult(authService.reissue(tokenRequestDto));
-    }
-
-    @ApiImplicitParams({
-            @ApiImplicitParam(
-                    name = "X-AUTH-TOKEN",
-                    value = "AccessToken",
-                    required = true, dataType = "String", paramType = "header"
-            )
-    })
-    @PreAuthorize("isAuthenticated()")
-    @PostMapping(value = "/logout", headers = "X-AUTH-TOKEN")
-    public CommonResult logout(@RequestHeader("X-AUTH-TOKEN") String accessToken) {
-
-        authService.logout(accessToken);
-        return responseService.getSuccessResult();
-    }
-
-    @ApiImplicitParams({
-            @ApiImplicitParam(
-                    name = "X-AUTH-TOKEN",
-                    value = "AccessToken",
-                    required = true, dataType = "String", paramType = "header"
-            )
-    })
-    @PreAuthorize("isAuthenticated()")
-    @PostMapping(value = "/withdrawal", headers = "X-AUTH-TOKEN")
-    public CommonResult withdrawal(@RequestHeader("X-AUTH-TOKEN") String accessToken, @AuthenticationPrincipal User user) {
-
-        authService.withdrawal(accessToken, user);
-        return responseService.getSuccessResult();
     }
 }

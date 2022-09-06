@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -24,21 +25,37 @@ import javax.servlet.http.HttpServletRequest;
 @RestControllerAdvice
 public class ExceptionAdvice {
     private final ResponseService responseService;
-    private final MessageSource messageSource;
 
     //default exception
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected CommonResult defaultException(HttpServletRequest request, Exception e) {
         log.info(String.valueOf(e));
+
+        String exception = String.valueOf(request.getAttribute("exception"));
+
+        if (exception.equals(String.valueOf(ErrorCode.LOGOUT_ERROR.getCode()))) {
+            return responseService.getFailResult
+                    (ErrorCode.LOGOUT_ERROR.getCode(), ErrorCode.LOGOUT_ERROR.getDescription());
+        }
         return responseService.getFailResult
                 (ErrorCode.INTERNAL_SERVER_ERROR.getCode(), ErrorCode.INTERNAL_SERVER_ERROR.getDescription());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected CommonResult validationException(HttpServletRequest request, MethodArgumentNotValidException e) {
+        log.info(String.valueOf(e));
+        return responseService.getFailResult
+                (ErrorCode.VALIDATION_ERROR.getCode(), ErrorCode.VALIDATION_ERROR.getDescription());
 
     }
 
+    //-------------------------Custum Error---------------------------------------//
+
     //해당 user를 찾지 못했을 떄
     @ExceptionHandler(CUserNotFoundException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     protected CommonResult userNotFoundException(HttpServletRequest request, CUserNotFoundException e) {
         return responseService.getFailResult
                 (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
@@ -46,7 +63,7 @@ public class ExceptionAdvice {
 
     //로그인 실패시
     @ExceptionHandler(CLoginFailedException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     protected CommonResult usernameLoginFailedException(HttpServletRequest request, CLoginFailedException e) {
         return responseService.getFailResult
                 (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
@@ -56,7 +73,7 @@ public class ExceptionAdvice {
      * 전달한 Jwt 이 정상적이지 않은 경우 발생 시키는 예외
      */
     @ExceptionHandler(CAuthenticationEntryPointException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected CommonResult authenticationEntrypointException(HttpServletRequest request, CAuthenticationEntryPointException e) {
         return responseService.getFailResult
                 (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
@@ -76,7 +93,7 @@ public class ExceptionAdvice {
      * refresh token이 잘못되었을 경우
      */
     @ExceptionHandler(CRefreshTokenException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected CommonResult refreshTokenException(HttpServletRequest request, CRefreshTokenException e) {
         return responseService.getFailResult
                 (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
@@ -126,7 +143,7 @@ public class ExceptionAdvice {
      * 게시물을 찾을 수 없는 경우
      */
     @ExceptionHandler(CPostNotFoundException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     protected CommonResult postNotFoundException(HttpServletRequest request, CPostNotFoundException e) {
         return responseService.getFailResult
                 (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
@@ -146,7 +163,7 @@ public class ExceptionAdvice {
      * 리프레쉬 토큰이 만료되었을 경우
      */
     @ExceptionHandler(CRefreshTokenExpiredException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected CommonResult refreshTokenExpiredException(HttpServletRequest request, CRefreshTokenExpiredException e) {
         return responseService.getFailResult
                 (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
@@ -156,7 +173,7 @@ public class ExceptionAdvice {
      * 로그아웃된 회원의 토큰으로 접근
      */
     @ExceptionHandler(CLogoutException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected CommonResult logoutException(HttpServletRequest request, CLogoutException e) {
         return responseService.getFailResult
                 (e.getErrorCode().getCode(), e.getErrorCode().getDescription());
@@ -176,7 +193,7 @@ public class ExceptionAdvice {
      * 등록되지 않은 장소일 경우
      */
     @ExceptionHandler(CPlaceNotFoundException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     protected CommonResult placeNotFoundException(HttpServletRequest request, CPlaceNotFoundException e) {
         return responseService.getFailResult
                 (e.getErrorCode().getCode(), e.getErrorCode().getDescription());

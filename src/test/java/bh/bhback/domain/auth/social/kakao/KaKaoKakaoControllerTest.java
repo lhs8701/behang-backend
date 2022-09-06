@@ -1,7 +1,7 @@
 package bh.bhback.domain.auth.social.kakao;
 
 import bh.bhback.domain.auth.basic.dto.SocialLoginRequestDto;
-import bh.bhback.domain.auth.basic.dto.UserSocialSignupRequestDto;
+import bh.bhback.domain.auth.basic.dto.SocialSignupRequestDto;
 import bh.bhback.domain.user.entity.User;
 import bh.bhback.domain.user.repository.UserJpaRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -62,7 +62,7 @@ public class KaKaoKakaoControllerTest {
     @Test
     public void 카카오_회원가입_성공() throws Exception {
         //given
-        String object = objectMapper.writeValueAsString(UserSocialSignupRequestDto.builder()
+        String object = objectMapper.writeValueAsString(SocialSignupRequestDto.builder()
                 .accessToken(accessToken)
                 .build());
 
@@ -87,7 +87,7 @@ public class KaKaoKakaoControllerTest {
     public void 카카오_회원가입_토큰에러_실패() throws Exception
     {
         //given
-        String object = objectMapper.writeValueAsString(UserSocialSignupRequestDto.builder()
+        String object = objectMapper.writeValueAsString(SocialSignupRequestDto.builder()
                 .accessToken(accessToken+"_wrongToken")
                 .build());
 
@@ -115,7 +115,7 @@ public class KaKaoKakaoControllerTest {
                 .provider("kakao")
                 .build());
 
-        String object = objectMapper.writeValueAsString(UserSocialSignupRequestDto.builder()
+        String object = objectMapper.writeValueAsString(SocialSignupRequestDto.builder()
                 .accessToken(accessToken)
                 .build());
 

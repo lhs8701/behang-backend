@@ -13,6 +13,13 @@ spring:
         hbm2ddl:
           auto: update
     show-sql: true
+  datasource:
+    url: jdbc:mysql://35.187.204.164:3306/web_db?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC&useLegacyDatetimeCode=false
+    username: hansol2
+    password: twntyone21@
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-test-query: select 1 from dual
 
 
 logging.level:
