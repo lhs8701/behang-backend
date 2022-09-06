@@ -1,20 +1,23 @@
 package bh.bhback.domain.auth.social.kakao.controller;
 
 
+import bh.bhback.domain.auth.basic.dto.LogoutWithdrawalRequestDto;
 import bh.bhback.domain.auth.basic.dto.SocialLoginRequestDto;
-import bh.bhback.domain.auth.basic.dto.UserSocialSignupRequestDto;
+import bh.bhback.domain.auth.basic.dto.SocialSignupRequestDto;
 import bh.bhback.domain.auth.social.kakao.service.KakaoSignService;
+import bh.bhback.domain.user.entity.User;
 import bh.bhback.global.common.response.service.ResponseService;
 import bh.bhback.global.common.response.dto.CommonResult;
 import bh.bhback.global.common.response.dto.SingleResult;
 import bh.bhback.domain.auth.jwt.dto.TokenResponseDto;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @Slf4j
 @Api(tags = {"Kakao SignUp/LogIn"})
@@ -33,7 +36,7 @@ public class KakaoController {
     @PostMapping("/login/kakao")
     public SingleResult<TokenResponseDto> loginByKakao(
             @ApiParam(value = "소셜 로그인 dto", required = true)
-            @RequestBody SocialLoginRequestDto socialLoginRequestDto) {
+            @RequestBody @Valid SocialLoginRequestDto socialLoginRequestDto) {
 
         return responseService.getSingleResult(kakaoSignService.loginByKakao(socialLoginRequestDto));
     }
@@ -45,8 +48,38 @@ public class KakaoController {
     @PostMapping("/signup/kakao")
     public CommonResult signupByKakao(
             @ApiParam(value = "소셜 회원가입 dto", required = true)
-            @RequestBody UserSocialSignupRequestDto socialSignupRequestDto) {
+            @RequestBody SocialSignupRequestDto socialSignupRequestDto) {
         kakaoSignService.signupByKakao(socialSignupRequestDto);
+        return responseService.getSuccessResult();
+    }
+
+    @ApiImplicitParams({
+            @ApiImplicitParam(
+                    name = "X-AUTH-TOKEN",
+                    value = "AccessToken",
+                    required = true, dataType = "String", paramType = "header"
+            )
+    })
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping(value = "/logout/kakao", headers = "X-AUTH-TOKEN")
+    public CommonResult logout(@RequestHeader("X-AUTH-TOKEN") String accessToken, @RequestBody LogoutWithdrawalRequestDto logoutRequestDto) {
+
+        kakaoSignService.logout(accessToken, logoutRequestDto);
+        return responseService.getSuccessResult();
+    }
+
+    @ApiImplicitParams({
+            @ApiImplicitParam(
+                    name = "X-AUTH-TOKEN",
+                    value = "AccessToken",
+                    required = true, dataType = "String", paramType = "header"
+            )
+    })
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping(value = "/withdrawal/kakao", headers = "X-AUTH-TOKEN")
+    public CommonResult withdrawal(@RequestHeader("X-AUTH-TOKEN") String accessToken, @RequestBody LogoutWithdrawalRequestDto withdrawalRequestDto, @AuthenticationPrincipal User user) {
+
+        kakaoSignService.withdrawal(accessToken, withdrawalRequestDto, user);
         return responseService.getSuccessResult();
     }
 }

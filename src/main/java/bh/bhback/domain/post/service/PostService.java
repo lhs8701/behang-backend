@@ -1,6 +1,8 @@
 package bh.bhback.domain.post.service;
 
 import bh.bhback.domain.image.dto.ImageDto;
+import bh.bhback.domain.image.entity.Image;
+import bh.bhback.domain.image.repository.ImageJpaRepository;
 import bh.bhback.domain.image.service.ImageService;
 import bh.bhback.domain.place.dto.CurPlaceDto;
 import bh.bhback.domain.place.entity.Place;
@@ -14,6 +16,8 @@ import bh.bhback.domain.post.entity.Post;
 import bh.bhback.domain.post.repository.PostJpaRepository;
 import bh.bhback.domain.user.entity.User;
 import bh.bhback.domain.user.repository.UserJpaRepository;
+import bh.bhback.global.common.pagenation.dto.PaginationDto;
+import bh.bhback.global.common.pagenation.service.PaginationService;
 import bh.bhback.global.error.advice.exception.CAccessDeniedException;
 import bh.bhback.global.error.advice.exception.CPlaceNotFoundException;
 import bh.bhback.global.error.advice.exception.CUserNotFoundException;
@@ -38,6 +42,8 @@ public class PostService {
     private final PlaceJpaRepository placeJpaRepository;
     private final ImageService imageService;
     private final PlaceService placeService;
+    private final PaginationService paginationService;
+    private final ImageJpaRepository imageJpaRepository;
 
     @Transactional
     public Long create(PostRequestDto postRequestDto, MultipartFile file, User user) {
@@ -59,11 +65,20 @@ public class PostService {
     public Long update(Long postId, PostUpdateParam postUpdateParam, User user) {
         Post post = postJpaRepository.findById(postId)
                 .orElseThrow(CPostNotFoundException::new);
-        if (!post.getUser().getUserId().equals(user.getUserId())){
+        if (!post.getUser().getUserId().equals(user.getUserId())) {
             throw new CAccessDeniedException();
         }
+        Long contentId = postUpdateParam.getPlace().getContentId();
+        Optional<Place> placeOptional = placeJpaRepository.findByContentId(contentId);
+        Place place;
+
+        if (placeOptional.isEmpty())
+            place = placeJpaRepository.save(postUpdateParam.getPlace());
+        else
+            place = placeOptional.get();
+
         post.setTag(postUpdateParam.getTag());
-        post.setPlace(postUpdateParam.getPlace());
+        post.setPlace(place);
         return postId;
     }
 
@@ -71,10 +86,21 @@ public class PostService {
     public void delete(Long postId, User user) {
         Post post = postJpaRepository.findById(postId)
                 .orElseThrow(CPostNotFoundException::new);
-        if (!post.getUser().getUserId().equals(user.getUserId())){
+        if (!post.getUser().getUserId().equals(user.getUserId())) {
             throw new CAccessDeniedException();
         }
+        Image image = post.getImage();
+        imageJpaRepository.deleteById(image.getImageId());
         postJpaRepository.deleteById(postId);
+        imageService.deletePostImage(image.getFileUrl());
+    }
+
+    @Transactional
+    public void deleteAllPost(User user) {
+        List<Post> postList = postJpaRepository.findAllByUser(user).orElseThrow(CPostNotFoundException::new);
+        for (Post post : postList) {
+            postJpaRepository.deleteById(post.getId());
+        }
     }
 
     @Transactional
@@ -112,35 +138,83 @@ public class PostService {
      */
     @Transactional
     public List<FeedResponseDto> getFeedOrderByDistance(Pageable pageable, CurPlaceDto curPlaceDto) {
-        List<Post> postList = postJpaRepository.findAllByOrderByCreatedDateDesc(pageable)
-                .orElseThrow(CPostNotFoundException::new);
-        List<FeedResponseDto> feedList = new ArrayList<FeedResponseDto>();
+        List<Post> postList = postJpaRepository.findAll();
+
+        List<FeedResponseDto> tempFeedList = new ArrayList<>();
 
         double curX = curPlaceDto.getCurX();
         double curY = curPlaceDto.getCurY();
 
-        for(Post post:postList){
+        for (Post post : postList) {
             //상대 거리 구하기
             double MapX = post.getPlace().getMapX();
             double MapY = post.getPlace().getMapY();
             double distance = placeService.getDistance(curX, curY, MapX, MapY);
-            feedList.add(new FeedResponseDto(post, distance));
+            tempFeedList.add(new FeedResponseDto(post, distance));
         }
 
         //정렬 알고리즘 구현
         Comparator<FeedResponseDto> comparator = new Comparator<FeedResponseDto>() {
             @Override
             public int compare(FeedResponseDto f1, FeedResponseDto f2) {
-                double distance = (f1.getDistance()-f2.getDistance());
+                double distance = (f1.getDistance() - f2.getDistance());
 
-                return (int)Math.round(distance);
+                return (int) Math.round(distance);
             }
         };
 
-        Collections.sort(feedList, comparator);
+        Collections.sort(tempFeedList, comparator);
+
+        //sort된 List에서 페이지에 해당하는 것만 뽑아내기
+        PaginationDto paginationDto = paginationService.calPage(pageable, tempFeedList);
+        int startIndex = paginationDto.getStartIndex();
+        int endIndex = paginationDto.getEndIndex();
+
+        List<FeedResponseDto> feedList = new ArrayList<>();
+        for (int i = startIndex; i <= endIndex; i++) {
+            feedList.add(tempFeedList.get(i));
+        }
 
         return feedList;
     }
+
+//
+//    /**
+//     * @param pageable
+//     * @param curPlaceDto (현재 위치)
+//     * @return 현재 부터 떨어진 거리순으로 정렬된 Feed
+//     */
+//    @Transactional
+//    public List<FeedResponseDto> getFeedOrderByDistance(Pageable pageable, CurPlaceDto curPlaceDto) {
+//        List<Post> postList = postJpaRepository.findAllByOrderByCreatedDateDesc(pageable)
+//                .orElseThrow(CPostNotFoundException::new);
+//        List<FeedResponseDto> feedList = new ArrayList<FeedResponseDto>();
+//
+//        double curX = curPlaceDto.getCurX();
+//        double curY = curPlaceDto.getCurY();
+//
+//        for(Post post:postList){
+//            //상대 거리 구하기
+//            double MapX = post.getPlace().getMapX();
+//            double MapY = post.getPlace().getMapY();
+//            double distance = placeService.getDistance(curX, curY, MapX, MapY);
+//            feedList.add(new FeedResponseDto(post, distance));
+//        }
+//
+//        //정렬 알고리즘 구현
+//        Comparator<FeedResponseDto> comparator = new Comparator<FeedResponseDto>() {
+//            @Override
+//            public int compare(FeedResponseDto f1, FeedResponseDto f2) {
+//                double distance = (f1.getDistance()-f2.getDistance());
+//
+//                return (int)Math.round(distance);
+//            }
+//        };
+//
+//        Collections.sort(feedList, comparator);
+//
+//        return feedList;
+//    }
 
     @Transactional // 최신순 정렬(임시)
     public List<FeedResponseDto> getUserFeed(Long userId, Pageable pageable) {

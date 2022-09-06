@@ -80,4 +80,21 @@ public class ImageService {
         }
         return folderPath;
     }
+
+    public boolean deletePostImage(String fileUrl){
+        File file = new File(fileUrl);
+
+        if (file.exists()) {
+            if (file.delete()) {
+                log.info("파일삭제 성공");
+                return true;
+            } else {
+                log.info("파일삭제 실패");
+                return false;
+            }
+        } else {
+            System.out.println("파일이 존재하지 않습니다.");
+            return false;
+        }
+    }
 }

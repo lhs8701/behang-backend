@@ -76,6 +76,23 @@ public class KakaoApiService {
         throw new CCommunicationException();
     }
 
+    public void kakaoLogout(String accessToken){
+        String logoutUrl = env.getProperty("social.kakao.url.logout");
+        if (logoutUrl == null) throw new CCommunicationException();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.set("Authorization", "Bearer " + accessToken);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(null, headers);
+        ResponseEntity<String> response = restTemplate.postForEntity(logoutUrl, request, String.class);
+
+        if (response.getStatusCode() == HttpStatus.OK)
+            return;
+        throw new CCommunicationException();
+    }
+
+
     public void kakaoUnlink(String accessToken) {
         String unlinkUrl = env.getProperty("social.kakao.url.unlink");
         if (unlinkUrl == null) throw new CCommunicationException();
@@ -87,7 +104,8 @@ public class KakaoApiService {
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(null, headers);
         ResponseEntity<String> response = restTemplate.postForEntity(unlinkUrl, request, String.class);
 
-        if (response.getStatusCode() == HttpStatus.OK) return;
+        if (response.getStatusCode() == HttpStatus.OK)
+            return;
         throw new CCommunicationException();
     }
 }

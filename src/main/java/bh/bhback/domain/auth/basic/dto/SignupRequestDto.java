@@ -9,7 +9,7 @@ import java.util.Collections;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserSignupRequestDto {
+public class SignupRequestDto {
     private String socialId;
     private String password;
     private String nickName;

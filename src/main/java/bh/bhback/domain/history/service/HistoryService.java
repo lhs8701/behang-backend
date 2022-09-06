@@ -4,7 +4,6 @@ import bh.bhback.domain.history.dto.AreaInfoDto;
 import bh.bhback.domain.history.entity.AreaCode;
 import bh.bhback.domain.post.entity.Post;
 import bh.bhback.domain.post.repository.PostJpaRepository;
-import bh.bhback.domain.post.service.PostService;
 import bh.bhback.domain.user.entity.User;
 import bh.bhback.global.error.advice.exception.CPostNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -20,21 +19,14 @@ import java.util.List;
 @Service
 public class HistoryService {
 
-    private final PostService postService;
     private final PostJpaRepository postJpaRepository;
 
     public int getIndexFromAreaCode(int areaCode) {
-        if (areaCode < 30)
-            return areaCode - 22;
-        else
-            return areaCode;
+        return (areaCode > 30) ? areaCode - 22 : areaCode;
     }
 
-    public int getAreaCodeFromIndex(int idx){
-        if (idx > 8)
-            return idx + 22;
-        else
-            return idx;
+    public int getAreaCodeFromIndex(int idx) {
+        return (idx > 8) ? idx + 22 : idx;
     }
 
     public List<AreaInfoDto> getThumbnail(User user) {
@@ -46,10 +38,9 @@ public class HistoryService {
             int areaCode = post.getPlace().getAreaCode();
             count[getIndexFromAreaCode(areaCode)]++;
         }
-        for (int i = 1; i < count.length ; i++) {
+        for (int i = 1; i < count.length; i++) {
             areaInfoList.add(new AreaInfoDto(AreaCode.find(getAreaCodeFromIndex(i)).getName(), count[i]));
         }
-        log.info(areaInfoList.toString());
         return areaInfoList;
     }
 }

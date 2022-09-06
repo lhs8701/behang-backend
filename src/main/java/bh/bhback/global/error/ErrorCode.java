@@ -26,6 +26,7 @@ public enum ErrorCode {
     REPORT_DUPLICATED_ERROR(-1016, "이미 신고한 게시물입니다."),
     PLACE_NOT_FOUND(-1017, "등록되지 않은 장소입니다."),
 
+    VALIDATION_ERROR(-9997, "객체에 대한 검증에 실패했습니다."),
     WRONG_APPROACH(-9998, "잘못된 접근입니다."),
     INTERNAL_SERVER_ERROR(-9999, "서버 에러입니다.");
 

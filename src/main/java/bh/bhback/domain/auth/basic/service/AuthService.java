@@ -1,7 +1,9 @@
 package bh.bhback.domain.auth.basic.service;
 
 
-import bh.bhback.domain.auth.basic.dto.UserSignupRequestDto;
+import bh.bhback.domain.auth.basic.dto.LogoutWithdrawalRequestDto;
+import bh.bhback.domain.auth.basic.dto.SignupRequestDto;
+import bh.bhback.domain.auth.social.kakao.service.KakaoApiService;
 import bh.bhback.domain.user.entity.User;
 import bh.bhback.domain.user.repository.UserJpaRepository;
 import bh.bhback.domain.auth.jwt.dto.TokenResponseDto;
@@ -29,15 +31,15 @@ public class AuthService {
     private final UserJpaRepository userJpaRepository;
     private final JwtProvider jwtProvider;
     private final RefreshTokenRedisRepository refreshTokenRedisRepository;
-    private final LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository;
+    private final KakaoApiService kakaoApiService;
 
     @Transactional
-    public Long socialSignup(UserSignupRequestDto userSignupRequestDto) {
+    public Long socialSignup(SignupRequestDto signupRequestDto) {
         if (userJpaRepository
-                .findBySocialIdAndProvider(userSignupRequestDto.toEntity().getSocialId(), userSignupRequestDto.getProvider())
+                .findBySocialIdAndProvider(signupRequestDto.toEntity().getSocialId(), signupRequestDto.getProvider())
                 .isPresent()
         ) throw new CUserExistException();
-        return userJpaRepository.save(userSignupRequestDto.toEntity()).getUserId();
+        return userJpaRepository.save(signupRequestDto.toEntity()).getUserId();
     }
 
     @Transactional
@@ -71,22 +73,5 @@ public class AuthService {
         else {
             throw new CRefreshTokenException();
         }
-    }
-
-    public void logout(String accessToken) {
-        Authentication authentication = jwtProvider.getAuthentication(accessToken);
-        User user = (User) authentication.getPrincipal();
-        long remainMilliSeconds = jwtProvider.getExpiration(accessToken);
-
-        refreshTokenRedisRepository.deleteById(user.getUserId());
-        logoutAccessTokenRedisRepository.save(new LogoutAccessToken(accessToken, user.getUserId(), remainMilliSeconds));
-    }
-
-    public void withdrawal(String accessToken, User user) {
-        long remainMilliSeconds = jwtProvider.getExpiration(accessToken);
-
-        refreshTokenRedisRepository.deleteById(user.getUserId());
-        logoutAccessTokenRedisRepository.save(new LogoutAccessToken(accessToken, user.getUserId(), remainMilliSeconds));
-        userJpaRepository.deleteById(user.getUserId());
     }
 }

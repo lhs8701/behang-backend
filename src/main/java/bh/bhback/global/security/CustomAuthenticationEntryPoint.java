@@ -31,9 +31,6 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         if (exception == null) {
             setResponse(response, ErrorCode.INTERNAL_SERVER_ERROR);
         }
-        else if (exception.equals(String.valueOf(ErrorCode.LOGOUT_ERROR.getCode()))) {
-            setResponse(response, ErrorCode.LOGOUT_ERROR);
-        }
         //잘못된 타입의 토큰인 경우
         else if (exception.equals(String.valueOf(ErrorCode.WRONG_TOKEN.getCode()))) {
             setResponse(response, ErrorCode.WRONG_TOKEN);
