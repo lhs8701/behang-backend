@@ -27,6 +27,7 @@ logging.level:
   org.hibernate.type: trace # SQL 실행 파라미터를 로그로 남긴다.
 
 upload:
+  root:
   path:
     post: E:\Spring\bh-back\src\images\post
     profile: E:\Spring\bh-back\src\images\profile

@@ -6,6 +6,7 @@ import bh.bhback.domain.auth.basic.service.AuthService;
 import bh.bhback.domain.auth.jwt.entity.LogoutAccessToken;
 import bh.bhback.domain.auth.jwt.repository.LogoutAccessTokenRedisRepository;
 import bh.bhback.domain.auth.social.apple.dto.*;
+import bh.bhback.domain.post.service.PostService;
 import bh.bhback.domain.user.entity.User;
 import bh.bhback.domain.user.repository.UserJpaRepository;
 import bh.bhback.domain.auth.jwt.entity.RefreshToken;
@@ -28,6 +29,7 @@ public class AppleSignService {
     private final JwtProvider jwtProvider;
     private final AuthService authService;
     private final LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository;
+    private final PostService postService;
 
     public TokenResponseDto loginByApple(AppleLoginRequestDto appleLoginRequestDto) {
         User user = userJpaRepository.findBySocialIdAndProvider(appleLoginRequestDto.getSocialId(), "apple")
@@ -52,6 +54,7 @@ public class AppleSignService {
 
     public void withdrawal(String accessToken, User user) {
         long remainMilliSeconds = jwtProvider.getExpiration(accessToken);
+        postService.deleteAllPost(user);
 
         refreshTokenRedisRepository.deleteById(user.getUserId());
         logoutAccessTokenRedisRepository.save(new LogoutAccessToken(accessToken, user.getUserId(), remainMilliSeconds));

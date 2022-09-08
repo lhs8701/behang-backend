@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,6 +60,7 @@ public class UserService {
     public UserProfileDto updateMyProfile(UserProfileUpdateParam userProfileUpdateParam, User user) {
         MultipartFile file = userProfileUpdateParam.getImageFile();
         user.setNickName(userProfileUpdateParam.getNickName());
+        imageService.deleteImage(user.getProfileImage());
         ImageDto imageDto = imageService.uploadProfileImage(file);
         user.setProfileImage(imageDto.getFileUrl());
         userJpaRepository.save(user);

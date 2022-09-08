@@ -26,6 +26,9 @@ public class ImageService {
     private String UploadPathPost;
     @Value("${upload.path.profile}")
     private String UploadPathProfile;
+    @Value("${upload.root}")
+    private String root;
+
     private final ImageJpaRepository imageJpaRepository;
 
     public ImageDto uploadImage(MultipartFile file, String uploadPath) {
@@ -38,7 +41,10 @@ public class ImageService {
         String fileOriName = Optional.ofNullable(file.getOriginalFilename()).orElse("image");
         String fileName = makeFileName(fileOriName);
         String fileUrl = makeFileUrl(fileName, uploadPath);
-        Path savePath = Paths.get(fileUrl);
+        if (root == null)
+            root = "";
+        String transferUrl = root + fileUrl;
+        Path savePath = Paths.get(transferUrl);
 
         try {
             file.transferTo(savePath);
@@ -65,24 +71,27 @@ public class ImageService {
     }
 
     public String makeFileUrl(String fileName, String uploadPath) {
-        String folderPath = makeFolder(uploadPath);
-        return uploadPath + File.separator + folderPath + File.separator + fileName;
-    }
+        //폴더 생성(folderPath) -> root + uploadPath + 날짜폴더
+        //DB 저장값(fileUrl-리턴) -> uploadPath + 날짜폴더 + fileName
+        String str_date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+        if (root == null)
+            root = "";
+        String str_folder = root + uploadPath + str_date;
+        String str_url = uploadPath + str_date + fileName;
+        String folderPath = str_folder.replace("/", File.separator);
 
-    // 날짜 폴더 생성
-    public String makeFolder(String uploadPath) {
-        String str = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-        String folderPath = str.replace("/", File.separator);
-        File uploadPathFolder = new File(uploadPath, folderPath);
-
+        File uploadPathFolder = new File(folderPath);
         if (!uploadPathFolder.exists()) {
             uploadPathFolder.mkdirs();
         }
-        return folderPath;
+
+        return str_url.replace("/", File.separator);
     }
 
-    public boolean deletePostImage(String fileUrl){
-        File file = new File(fileUrl);
+    public boolean deleteImage(String fileUrl){
+        if (root == null)
+            root = "";
+        File file = new File(root + fileUrl);
 
         if (file.exists()) {
             if (file.delete()) {

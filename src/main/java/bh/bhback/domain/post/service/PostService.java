@@ -92,14 +92,17 @@ public class PostService {
         Image image = post.getImage();
         imageJpaRepository.deleteById(image.getImageId());
         postJpaRepository.deleteById(postId);
-        imageService.deletePostImage(image.getFileUrl());
+        imageService.deleteImage(image.getFileUrl());
     }
 
     @Transactional
     public void deleteAllPost(User user) {
-        List<Post> postList = postJpaRepository.findAllByUser(user).orElseThrow(CPostNotFoundException::new);
+        List<Post> postList = postJpaRepository.findAllByUser(user).orElse(null);
+        if (postList == null)
+            return;
+
         for (Post post : postList) {
-            postJpaRepository.deleteById(post.getId());
+            delete(post.getId(), user);
         }
     }
 
@@ -112,8 +115,9 @@ public class PostService {
 
     @Transactional // 최신순 정렬(임시)
     public List<FeedResponseDto> getFeed(Pageable pageable) {
-        List<Post> postList = postJpaRepository.findAllByOrderByCreatedDateDesc(pageable)
-                .orElseThrow(CPostNotFoundException::new);
+        List<Post> postList = postJpaRepository.findAllByOrderByCreatedDateDesc(pageable).orElse(null);
+        if (postList == null)
+            return null;
         return postList.stream()
                 .map(FeedResponseDto::new)
                 .collect(Collectors.toList());
@@ -178,59 +182,25 @@ public class PostService {
         return feedList;
     }
 
-//
-//    /**
-//     * @param pageable
-//     * @param curPlaceDto (현재 위치)
-//     * @return 현재 부터 떨어진 거리순으로 정렬된 Feed
-//     */
-//    @Transactional
-//    public List<FeedResponseDto> getFeedOrderByDistance(Pageable pageable, CurPlaceDto curPlaceDto) {
-//        List<Post> postList = postJpaRepository.findAllByOrderByCreatedDateDesc(pageable)
-//                .orElseThrow(CPostNotFoundException::new);
-//        List<FeedResponseDto> feedList = new ArrayList<FeedResponseDto>();
-//
-//        double curX = curPlaceDto.getCurX();
-//        double curY = curPlaceDto.getCurY();
-//
-//        for(Post post:postList){
-//            //상대 거리 구하기
-//            double MapX = post.getPlace().getMapX();
-//            double MapY = post.getPlace().getMapY();
-//            double distance = placeService.getDistance(curX, curY, MapX, MapY);
-//            feedList.add(new FeedResponseDto(post, distance));
-//        }
-//
-//        //정렬 알고리즘 구현
-//        Comparator<FeedResponseDto> comparator = new Comparator<FeedResponseDto>() {
-//            @Override
-//            public int compare(FeedResponseDto f1, FeedResponseDto f2) {
-//                double distance = (f1.getDistance()-f2.getDistance());
-//
-//                return (int)Math.round(distance);
-//            }
-//        };
-//
-//        Collections.sort(feedList, comparator);
-//
-//        return feedList;
-//    }
-
-    @Transactional // 최신순 정렬(임시)
+    @Transactional // 최신순 정렬
     public List<FeedResponseDto> getUserFeed(Long userId, Pageable pageable) {
         User user = userJpaRepository.findById(userId).orElseThrow(CUserNotFoundException::new);
         List<Post> postList = postJpaRepository.findAllByUserOrderByCreatedDateDesc(user, pageable)
-                .orElseThrow(CPostNotFoundException::new);
+                .orElse(null);
+        if (postList == null)
+            return null;
         return postList.stream()
                 .map(FeedResponseDto::new)
                 .collect(Collectors.toList());
     }
 
-    @Transactional // 최신순 정렬(임시)
+    @Transactional // 최신순 정렬
     public List<FeedResponseDto> getUserFeed(User user, Pageable pageable) {
         userJpaRepository.findById(user.getUserId()).orElseThrow(CUserNotFoundException::new);
         List<Post> postList = postJpaRepository.findAllByUserOrderByCreatedDateDesc(user, pageable)
-                .orElseThrow(CPostNotFoundException::new);
+                .orElse(null);
+        if (postList == null)
+            return null;
         return postList.stream()
                 .map(FeedResponseDto::new)
                 .collect(Collectors.toList());
