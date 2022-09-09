@@ -1,4 +1,4 @@
-package bh.bhback.domain.auth.basic.dto;
+package bh.bhback.domain.auth.social.kakao.dto;
 
 import lombok.*;
 
@@ -9,7 +9,7 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SocialSignupRequestDto {
+public class KakaoSignupRequestDto {
     @NotBlank
     private String accessToken;
 }

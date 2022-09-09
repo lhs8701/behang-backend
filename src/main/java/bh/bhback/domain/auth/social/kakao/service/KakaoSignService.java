@@ -2,8 +2,8 @@ package bh.bhback.domain.auth.social.kakao.service;
 
 import bh.bhback.domain.auth.basic.dto.LogoutWithdrawalRequestDto;
 import bh.bhback.domain.auth.basic.dto.SignupRequestDto;
-import bh.bhback.domain.auth.basic.dto.SocialLoginRequestDto;
-import bh.bhback.domain.auth.basic.dto.SocialSignupRequestDto;
+import bh.bhback.domain.auth.social.kakao.dto.KakaoLoginRequestDto;
+import bh.bhback.domain.auth.social.kakao.dto.KakaoSignupRequestDto;
 import bh.bhback.domain.auth.basic.service.AuthService;
 import bh.bhback.domain.auth.jwt.entity.LogoutAccessToken;
 import bh.bhback.domain.auth.jwt.repository.LogoutAccessTokenRedisRepository;
@@ -55,9 +55,9 @@ public class KakaoSignService {
         userJpaRepository.deleteById(user.getUserId());
     }
 
-    public TokenResponseDto loginByKakao(SocialLoginRequestDto socialLoginRequestDto) {
+    public TokenResponseDto loginByKakao(KakaoLoginRequestDto kakaoLoginRequestDto) {
 
-        KakaoProfile kakaoProfile = kakaoApiService.getKakaoProfile(socialLoginRequestDto.getAccessToken());
+        KakaoProfile kakaoProfile = kakaoApiService.getKakaoProfile(kakaoLoginRequestDto.getAccessToken());
         if (kakaoProfile == null)
             throw new CUserNotFoundException();
 
@@ -73,11 +73,11 @@ public class KakaoSignService {
         return tokenResponseDto;
     }
 
-    public void signupByKakao(SocialSignupRequestDto socialSignupRequestDto) {
+    public void signupByKakao(KakaoSignupRequestDto kakaoSignupRequestDto) {
 
         // 카카오에게서 사용자 정보 요청
         KakaoProfile kakaoProfile =
-                kakaoApiService.getKakaoProfile(socialSignupRequestDto.getAccessToken());
+                kakaoApiService.getKakaoProfile(kakaoSignupRequestDto.getAccessToken());
         if (kakaoProfile == null) throw new CUserNotFoundException();
 
         String image = kakaoProfile.getKakao_account().getProfile().getProfile_image_url();

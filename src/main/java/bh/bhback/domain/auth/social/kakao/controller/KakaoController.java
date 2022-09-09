@@ -2,8 +2,8 @@ package bh.bhback.domain.auth.social.kakao.controller;
 
 
 import bh.bhback.domain.auth.basic.dto.LogoutWithdrawalRequestDto;
-import bh.bhback.domain.auth.basic.dto.SocialLoginRequestDto;
-import bh.bhback.domain.auth.basic.dto.SocialSignupRequestDto;
+import bh.bhback.domain.auth.social.kakao.dto.KakaoLoginRequestDto;
+import bh.bhback.domain.auth.social.kakao.dto.KakaoSignupRequestDto;
 import bh.bhback.domain.auth.social.kakao.service.KakaoSignService;
 import bh.bhback.domain.user.entity.User;
 import bh.bhback.global.common.response.service.ResponseService;
@@ -36,9 +36,9 @@ public class KakaoController {
     @PostMapping("/login/kakao")
     public SingleResult<TokenResponseDto> loginByKakao(
             @ApiParam(value = "소셜 로그인 dto", required = true)
-            @RequestBody @Valid SocialLoginRequestDto socialLoginRequestDto) {
+            @RequestBody @Valid KakaoLoginRequestDto kakaoLoginRequestDto) {
 
-        return responseService.getSingleResult(kakaoSignService.loginByKakao(socialLoginRequestDto));
+        return responseService.getSingleResult(kakaoSignService.loginByKakao(kakaoLoginRequestDto));
     }
 
     @ApiOperation(
@@ -48,8 +48,8 @@ public class KakaoController {
     @PostMapping("/signup/kakao")
     public CommonResult signupByKakao(
             @ApiParam(value = "소셜 회원가입 dto", required = true)
-            @RequestBody SocialSignupRequestDto socialSignupRequestDto) {
-        kakaoSignService.signupByKakao(socialSignupRequestDto);
+            @RequestBody KakaoSignupRequestDto kakaoSignupRequestDto) {
+        kakaoSignService.signupByKakao(kakaoSignupRequestDto);
         return responseService.getSuccessResult();
     }
 

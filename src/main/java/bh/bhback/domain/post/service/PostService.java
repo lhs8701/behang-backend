@@ -83,7 +83,7 @@ public class PostService {
     }
 
     @Transactional
-    public void delete(Long postId, User user) {
+    public void deletePost(Long postId, User user) {
         Post post = postJpaRepository.findById(postId)
                 .orElseThrow(CPostNotFoundException::new);
         if (!post.getUser().getUserId().equals(user.getUserId())) {
@@ -102,7 +102,7 @@ public class PostService {
             return;
 
         for (Post post : postList) {
-            delete(post.getId(), user);
+            deletePost(post.getId(), user);
         }
     }
 

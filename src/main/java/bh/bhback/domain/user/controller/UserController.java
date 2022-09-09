@@ -17,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import springfox.documentation.annotations.ApiIgnore;
 
 
 @Api(tags = {"User"})
@@ -31,6 +32,7 @@ public class UserController {
     private final ResponseService responseService;
 
     //   회원 목록 조회
+    @ApiIgnore
     @ApiOperation(value = "회원 목록 조회", notes = "모든 회원을 조회합니다.")
     @GetMapping()
     public ListResult<UserResponseDto> findAllUser() {
@@ -38,6 +40,7 @@ public class UserController {
     }
 
     //id로 회원 조회
+    @ApiIgnore
     @ApiOperation(value = "회원 단건 검색", notes = "userId로 회원을 조회합니다.")
     @GetMapping("/id/{userId}")
     public SingleResult<UserResponseDto> findUserById
@@ -46,6 +49,7 @@ public class UserController {
     }
 
     //회원 삭제
+    @ApiIgnore
     @ApiOperation(value = "회원 삭제", notes = "회원을 삭제합니다.")
     @DeleteMapping("/id/{userId}")
     public CommonResult delete
@@ -71,7 +75,7 @@ public class UserController {
                     required = true, dataType = "String", paramType = "header"
             )
     })
-    @ApiOperation(value = "유저 프로필 조회", notes = "회원 아이디로 프로필을 조회합니다.")
+    @ApiOperation(value = "유저 프로필 조회", notes = "토큰으로 내 프로필을 조회합니다.")
     @PreAuthorize("hasRole('USER')")
     @GetMapping(value = "/profile/me", headers = "X-AUTH-TOKEN")
     public SingleResult<UserProfileDto> getMyProfile

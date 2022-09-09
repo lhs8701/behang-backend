@@ -128,7 +128,7 @@ public class PostController {
     @PreAuthorize("hasRole('USER')")
     @DeleteMapping(value = "/{postId}", headers = "X-AUTH-TOKEN")
     public CommonResult delete(@PathVariable Long postId, @AuthenticationPrincipal User user) {
-        postService.delete(postId, user);
+        postService.deletePost(postId, user);
         return responseService.getSuccessResult();
     }
 }

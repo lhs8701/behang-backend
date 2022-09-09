@@ -42,11 +42,11 @@ public class AppleSignService {
         return tokenDto;
     }
 
-    public Long signupByApple(AppleLoginRequestDto appleLoginRequestDto) {
+    public Long signupByApple(AppleSignupRequestDto appleSignupRequestDto) {
 
         return authService.socialSignup(SignupRequestDto.builder()
-                .socialId(appleLoginRequestDto.getSocialId())
-                .nickName(appleLoginRequestDto.getNickName())
+                .socialId(appleSignupRequestDto.getSocialId())
+                .nickName(appleSignupRequestDto.getNickName())
                 .profileImage("images/static/default_profile_image.png")
                 .provider("apple")
                 .build());

@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,12 +22,6 @@ import java.util.stream.Collectors;
 public class UserService {
     private UserJpaRepository userJpaRepository;
     private final ImageService imageService;
-
-//    @Transactional
-//    public Long save(UserRequestDto userDto) {
-//        User saved = userJpaRepo.save(userDto.toEntity());
-//        return saved.getUserId();
-//    }
 
     @Transactional(readOnly = true)
     public UserResponseDto findById(Long userId) {
