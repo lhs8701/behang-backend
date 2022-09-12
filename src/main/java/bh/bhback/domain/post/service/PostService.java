@@ -43,7 +43,6 @@ public class PostService {
     private final ImageService imageService;
     private final PlaceService placeService;
     private final PaginationService paginationService;
-    private final ImageJpaRepository imageJpaRepository;
 
     @Transactional
     public Long create(PostRequestDto postRequestDto, MultipartFile file, User user) {
@@ -90,7 +89,6 @@ public class PostService {
             throw new CAccessDeniedException();
         }
         Image image = post.getImage();
-        imageJpaRepository.deleteById(image.getImageId());
         postJpaRepository.deleteById(postId);
         imageService.deleteImage(image.getFileUrl());
     }

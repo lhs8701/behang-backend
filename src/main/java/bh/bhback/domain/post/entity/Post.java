@@ -41,7 +41,7 @@ public class Post extends BaseTimeEntity {
     @JoinColumn(name="content_id")
     private Place place;
 
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default
     private List<Report> reportList = new ArrayList<>();
 
