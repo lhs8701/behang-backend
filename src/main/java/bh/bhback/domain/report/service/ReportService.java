@@ -4,7 +4,7 @@ import bh.bhback.domain.post.entity.Post;
 import bh.bhback.domain.post.repository.PostJpaRepository;
 import bh.bhback.domain.post.service.PostService;
 import bh.bhback.domain.report.entity.Report;
-import bh.bhback.domain.report.repository.ReportRepository;
+import bh.bhback.domain.report.repository.ReportJpaRepository;
 import bh.bhback.domain.user.entity.User;
 import bh.bhback.global.error.advice.exception.CPostNotFoundException;
 import bh.bhback.global.error.advice.exception.CReportDuplicatedException;
@@ -21,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReportService {
 
-    private final ReportRepository reportJpaRepository;
+    private final ReportJpaRepository reportJpaRepository;
     private final PostJpaRepository postJpaRepository;
     private final PostService postService;
     private static final int REPORT_LIMIT = 50;

@@ -31,7 +31,6 @@ public class AuthService {
     private final UserJpaRepository userJpaRepository;
     private final JwtProvider jwtProvider;
     private final RefreshTokenRedisRepository refreshTokenRedisRepository;
-    private final KakaoApiService kakaoApiService;
 
     @Transactional
     public Long socialSignup(SignupRequestDto signupRequestDto) {
@@ -54,6 +53,7 @@ public class AuthService {
 
         if (oldRefreshToken.equals(oldRedisRefreshToken.getRefreshToken())) {
             String accessToken = jwtProvider.generateAccessToken(user.getUserId(), user.getRoles());
+            //refreshToken 만료임박
             if (jwtProvider.getExpiration(oldRefreshToken) < JwtExpiration.REISSUE_EXPIRATION_TIME.getValue()) {
                 String refreshToken = jwtProvider.generateRefreshToken(user.getUserId(), user.getRoles());
                 refreshTokenRedisRepository.save(new RefreshToken(user.getUserId(), refreshToken));
@@ -63,11 +63,14 @@ public class AuthService {
                         .refreshToken(refreshToken)
                         .build();
             }
-            return TokenResponseDto.builder()
-                    .grantType("bearer")
-                    .accessToken(accessToken)
-                    .refreshToken(oldRefreshToken)
-                    .build();
+            //refreshToken 만료까지 멀었음
+            else {
+                return TokenResponseDto.builder()
+                        .grantType("bearer")
+                        .accessToken(accessToken)
+                        .refreshToken(oldRefreshToken)
+                        .build();
+            }
         }
         // 리프레시 토큰 불일치 에러
         else {

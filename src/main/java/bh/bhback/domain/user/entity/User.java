@@ -43,11 +43,11 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Column
     private String profileImage;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonIgnoreProperties({"user"}) //user table에 칼럼 생성 방지
     private List<Post> postList;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default
     private List<Report> reportList = new ArrayList<>();
 

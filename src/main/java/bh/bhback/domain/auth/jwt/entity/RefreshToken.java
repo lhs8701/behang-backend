@@ -2,10 +2,10 @@ package bh.bhback.domain.auth.jwt.entity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
-import org.springframework.data.annotation.Id;
 
 @Getter
 @NoArgsConstructor

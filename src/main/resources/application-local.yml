@@ -14,7 +14,7 @@ spring:
           auto: update
     show-sql: true
   datasource:
-    url: jdbc:mysql://35.187.204.164:3306/web_db?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC&useLegacyDatetimeCode=false
+    url: jdbc:mysql://35.187.204.164:3306/web_db?validationQuery="select 1"&useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC&useLegacyDatetimeCode=false
     username: hansol2
     password: twntyone21@
     driver-class-name: com.mysql.cj.jdbc.Driver

@@ -77,7 +77,7 @@ public class ImageService {
         if (root == null)
             root = "";
         String str_folder = root + uploadPath + str_date;
-        String str_url = uploadPath + str_date + fileName;
+        String str_url = uploadPath + str_date + "/" + fileName;
         String folderPath = str_folder.replace("/", File.separator);
 
         File uploadPathFolder = new File(folderPath);

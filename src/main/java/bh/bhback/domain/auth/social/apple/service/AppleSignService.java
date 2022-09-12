@@ -47,7 +47,7 @@ public class AppleSignService {
         return authService.socialSignup(SignupRequestDto.builder()
                 .socialId(appleSignupRequestDto.getSocialId())
                 .nickName(appleSignupRequestDto.getNickName())
-                .profileImage("images/static/default_profile_image.png")
+                .profileImage("images/profile/default_profile_image.png")
                 .provider("apple")
                 .build());
     }

@@ -9,17 +9,22 @@ import bh.bhback.domain.auth.jwt.entity.LogoutAccessToken;
 import bh.bhback.domain.auth.jwt.repository.LogoutAccessTokenRedisRepository;
 import bh.bhback.domain.auth.social.kakao.dto.KakaoProfile;
 import bh.bhback.domain.post.service.PostService;
+import bh.bhback.domain.report.repository.ReportJpaRepository;
 import bh.bhback.domain.user.entity.User;
 import bh.bhback.domain.user.repository.UserJpaRepository;
 import bh.bhback.domain.auth.jwt.entity.RefreshToken;
 import bh.bhback.domain.auth.jwt.repository.RefreshTokenRedisRepository;
+import bh.bhback.global.error.advice.exception.CRefreshTokenExpiredException;
 import bh.bhback.global.security.JwtProvider;
 import bh.bhback.domain.auth.jwt.dto.TokenResponseDto;
 import bh.bhback.global.error.advice.exception.CUserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+
+import javax.persistence.PrePersist;
 
 @RequiredArgsConstructor
 @Service
@@ -33,26 +38,26 @@ public class KakaoSignService {
     private final RefreshTokenRedisRepository refreshTokenRedisRepository;
     private final LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository;
     private final PostService postService;
+    private final ReportJpaRepository reportJpaRepository;
 
-    public void logout(String accessToken, LogoutWithdrawalRequestDto logoutRequestDto) {
-        Authentication authentication = jwtProvider.getAuthentication(accessToken);
-        User user = (User) authentication.getPrincipal();
-        long remainMilliSeconds = jwtProvider.getExpiration(accessToken);
 
-        kakaoApiService.kakaoLogout(logoutRequestDto.getSocialAccessToken());
-        refreshTokenRedisRepository.deleteById(user.getUserId());
-        logoutAccessTokenRedisRepository.save(new LogoutAccessToken(accessToken, user.getUserId(), remainMilliSeconds));
-    }
+    public void signupByKakao(KakaoSignupRequestDto kakaoSignupRequestDto) {
 
-    public void withdrawal(String accessToken, LogoutWithdrawalRequestDto withdrawalRequestDto, User user) {
-        long remainMilliSeconds = jwtProvider.getExpiration(accessToken);
+        // 카카오에게서 사용자 정보 요청
+        KakaoProfile kakaoProfile =
+                kakaoApiService.getKakaoProfile(kakaoSignupRequestDto.getAccessToken());
+        if (kakaoProfile == null) throw new CUserNotFoundException();
 
-        postService.deleteAllPost(user);
+        String image = kakaoProfile.getKakao_account().getProfile().getProfile_image_url();
+        if (image == null)
+            image = "images/profile/default_profile_image.png";
 
-        kakaoApiService.kakaoUnlink(withdrawalRequestDto.getSocialAccessToken());
-        refreshTokenRedisRepository.deleteById(user.getUserId());
-        logoutAccessTokenRedisRepository.save(new LogoutAccessToken(accessToken, user.getUserId(), remainMilliSeconds));
-        userJpaRepository.deleteById(user.getUserId());
+        authService.socialSignup(SignupRequestDto.builder()
+                .socialId(String.valueOf(kakaoProfile.getId()))
+                .nickName(kakaoProfile.getKakao_account().getProfile().getNickname())
+                .profileImage(image)
+                .provider("kakao")
+                .build());
     }
 
     public TokenResponseDto loginByKakao(KakaoLoginRequestDto kakaoLoginRequestDto) {
@@ -73,22 +78,22 @@ public class KakaoSignService {
         return tokenResponseDto;
     }
 
-    public void signupByKakao(KakaoSignupRequestDto kakaoSignupRequestDto) {
+    public void logout(String accessToken, LogoutWithdrawalRequestDto logoutRequestDto) {
+        Authentication authentication = jwtProvider.getAuthentication(accessToken);
+        User user = (User) authentication.getPrincipal();
+        long remainMilliSeconds = jwtProvider.getExpiration(accessToken);
 
-        // 카카오에게서 사용자 정보 요청
-        KakaoProfile kakaoProfile =
-                kakaoApiService.getKakaoProfile(kakaoSignupRequestDto.getAccessToken());
-        if (kakaoProfile == null) throw new CUserNotFoundException();
+        kakaoApiService.kakaoLogout(logoutRequestDto.getSocialAccessToken());
+        refreshTokenRedisRepository.deleteById(user.getUserId());
+        logoutAccessTokenRedisRepository.save(new LogoutAccessToken(accessToken, user.getUserId(), remainMilliSeconds));
+    }
 
-        String image = kakaoProfile.getKakao_account().getProfile().getProfile_image_url();
-        if (image == null)
-            image = "images/static/default_profile_image.png";
+    public void withdrawal(String accessToken, LogoutWithdrawalRequestDto withdrawalRequestDto, User user) {
+        long remainMilliSeconds = jwtProvider.getExpiration(accessToken);
 
-        authService.socialSignup(SignupRequestDto.builder()
-                .socialId(String.valueOf(kakaoProfile.getId()))
-                .nickName(kakaoProfile.getKakao_account().getProfile().getNickname())
-                .profileImage(image)
-                .provider("kakao")
-                .build());
+        kakaoApiService.kakaoUnlink(withdrawalRequestDto.getSocialAccessToken());
+        refreshTokenRedisRepository.deleteById(user.getUserId());
+        logoutAccessTokenRedisRepository.save(new LogoutAccessToken(accessToken, user.getUserId(), remainMilliSeconds));
+        userJpaRepository.deleteById(user.getUserId());
     }
 }
