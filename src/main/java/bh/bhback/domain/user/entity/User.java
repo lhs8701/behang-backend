@@ -1,6 +1,10 @@
 package bh.bhback.domain.user.entity;
 
-import bh.bhback.global.common.BaseTimeEntity;
+import bh.bhback.domain.auth.jwt.entity.AppleRefreshToken;
+import bh.bhback.domain.post.entity.Post;
+import bh.bhback.domain.report.entity.Report;
+import bh.bhback.global.common.jpa.BaseTimeEntity;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,22 +30,36 @@ public class User extends BaseTimeEntity implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
+    @Column(length = 100)
+    private String socialId;
+
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(length = 100)
     private String password;
 
-    @Column(nullable = false, unique = true, length = 30)
-    private String email;
-
     @Column(nullable = false, length = 20)
     private String nickName;
+
+    @Column
+    private String profileImage;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"user"}) //user table에 칼럼 생성 방지
+    private List<Post> postList;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<Report> reportList = new ArrayList<>();
 
     @Column(length = 100) // provider 추가 (kakao, naver, google etc.)
     private String provider;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.EAGER) //LAZY -> 오류
     @Builder.Default
     private List<String> roles = new ArrayList<>();
+
+    @OneToOne(mappedBy = "user")
+    private AppleRefreshToken appleRefreshToken;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -58,7 +76,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Override
     public String getUsername() {
-        return this.email;
+        return this.nickName;
     }
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -84,6 +102,5 @@ public class User extends BaseTimeEntity implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 
 }
