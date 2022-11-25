@@ -101,7 +101,7 @@ public class PostController {
         return responseService.getSingleResult(postService.create(postRequestDto, file, user));
     }
 
-    //    게시물 수정
+    //게시물 수정
     @ApiImplicitParams({
             @ApiImplicitParam(
                     name = "X-AUTH-TOKEN",
