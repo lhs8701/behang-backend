@@ -31,7 +31,7 @@
 </div> 
 
 ## ⚡ 주요 기능
-### 메인 피드
+### ✅ 메인 피드
 <p align="center">
 <img src="https://user-images.githubusercontent.com/51712973/205067198-4a953ce6-7460-409c-86ef-f84f9c07ff37.jpeg" width="200px" />
 </p>
@@ -40,7 +40,7 @@
 - 현재 위치로부터 가까운 거리에 있는 관광지순으로 사진이 표시됩니다.   
 - 사진을 클릭하면 해당 관광지의 정보와 사진들을 볼 수 있습니다.   
 
-### 포스트 및 업로드
+### ✅ 포스트 및 업로드
 <p align="center">
 <img src="https://user-images.githubusercontent.com/51712973/205068684-122f9a3f-6833-489e-be5b-9dff94778c9f.jpeg" width="200px" />
 <img src="https://user-images.githubusercontent.com/51712973/205068984-d535f949-08ae-4f16-ac16-32213272258b.jpeg" width="200px" />
@@ -53,7 +53,7 @@
 - Tour API를 통해 한국관광공사의 관광지 정보를 위치로 등록할 수 있습니다.   
 - 사진을 게시할 때 관광지에 대한 간단한 정보를 태그로 알려줄 수 있습니다.   
 
-### 관광 지도
+### ✅ 관광 지도
 <p align="center">
 <img src="https://user-images.githubusercontent.com/51712973/205070103-b0dc56cc-0295-4028-bf26-5ce995aec9f1.jpeg" width="200px" />
 <img src="https://user-images.githubusercontent.com/51712973/205070122-49df6c55-a1c3-40f4-a75d-2685bd8ce831.jpeg" width="200px" />
@@ -64,7 +64,7 @@
 - 검색한 TourAPI의 관광지 위치를 카카오맵 상에서 확인할 수 있습니다.   
 - 내 주변 버튼을 누르면 현재 위치 주변의 관광지 위치를 알 수 있습니다.   
 
-### 여행 기록
+### ✅ 여행 기록
 <p align="center">
 <img src="https://user-images.githubusercontent.com/51712973/205071924-4bd71bf4-c900-417e-aa9b-ca5cfcb8f86a.jpeg" width="200px" />
 <img src="https://user-images.githubusercontent.com/51712973/205072106-2fa7bc00-5ba4-4c78-b147-f77e14a75ebf.jpeg" width="200px" />
@@ -73,7 +73,7 @@
 - 사용자가 특정 지역에 일정 개수 이상 사진을 게시하면 깃발이 생깁니다.   
 - 인스타그램 스토리 연결을 통해 여행 기록을 손쉽게 공유할 수 있습니다.   
 
-### 마이페이지
+### ✅ 마이페이지
 <p align="center">
 <img src="https://user-images.githubusercontent.com/51712973/205072620-6fc4d4c4-754b-4ca6-bd1c-05e1bd36da17.jpeg" width="200px" />
 </p>
@@ -81,7 +81,7 @@
 - 사용자가 게시한 포스트들을 확인할 수 있습니다.
 - 프로필 사진, 닉네임을 변경할 수 있습니다.
 
-### 데모 영상
+## 🐵 데모 영상
 
 ![실행영상_cut_low_](https://user-images.githubusercontent.com/45627010/203982792-ccfbd95d-a691-461e-90d3-30a3c41ac72c.gif)
 
