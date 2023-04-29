@@ -1,12 +1,14 @@
-  
 
 ## <img align="left" src="https://user-images.githubusercontent.com/51712973/205058042-9a57f621-f963-49ae-bd32-cb77bf21822b.png" width="80px" /> 비행 - 비와 함께하는 여행
 > 비 오는 날 여행할 곳을 추천해주는 어플리케이션 서비스
 
 <img width="996" alt="appstore_screenshot" src="https://user-images.githubusercontent.com/51712973/205062487-2e7b2c1b-d083-4273-b7a3-05378c3e6fdd.png">
 
-[[Web Page]](https://jaeheon-sim.github.io/behang/)   
-[[App Store]](https://apps.apple.com/kr/app/%EB%B9%84%ED%96%89-%EB%B9%84%EC%99%80-%ED%95%A8%EA%BB%98%ED%95%98%EB%8A%94-%EC%97%AC%ED%96%89/id1643689621)
+<p>
+<a href="https://jaeheon-sim.github.io/behang/"><img src="https://user-images.githubusercontent.com/45627010/235289853-1bfc1583-d9bd-40d1-aa28-803b62dbad32.png"></a> &nbsp; 
+<a href="https://apps.apple.com/kr/app/%EB%B9%84%ED%96%89-%EB%B9%84%EC%99%80-%ED%95%A8%EA%BB%98%ED%95%98%EB%8A%94-%EC%97%AC%ED%96%89/id1643689621"><img src="https://user-images.githubusercontent.com/45627010/235289866-3fc5ef1b-77f1-4759-910a-051b3aea881e.png"></a>
+</p>
+
 ## 🌎 프로젝트 배경
 
 자신의 일정에 맞춰 여행 계획을 세우다 보면, 여행 도중 비를 만나는 경우가 종종 있습니다.   
